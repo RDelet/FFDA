@@ -144,6 +144,8 @@ Correct paths of *.png, *.csv, and *.meta in output_data.json to point to local 
 
 ### Deform
 
+Below steps has been automated in the ```loadDeformer.py``` provided in this repo
+
 You can load the deformer by running:
 
 ```python
@@ -168,8 +170,6 @@ Take a look at the `test_deformer` function to see how to set this up on a sampl
 
 The deformer will now load up the Tensorflow models we wrote earlier and predict values based on the
 transforms of the joints it has been given.
-
-All of this has been automated in the loadDeformer.py provided in this repo
 
 ## Notes
 
