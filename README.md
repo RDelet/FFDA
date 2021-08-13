@@ -42,6 +42,15 @@ on your `PYTHONPATH`.
 
 If you're using Maya you can place the MLDeform directory in your scripts directory.
 
+You need to install `Maya 2022`
+
+Once installed run the following in command line:
+
+```mayapy.exe -m pip install numpy
+mayapy.exe -m pip install tensorflow==1.14
+
+```
+
 ### Simplifying Skinning
 
 This method requires that each joint have a single influence.
@@ -94,11 +103,43 @@ path = writer.write(mesh, target, outdir=outdir)
 
 Now we train the models!
 
+There are two ways of doing it, in your local machine if you have tensorflow correctly setup or you can use Google Colab if you plan to implement training on cloud
+
+Local machine setup:
+
 ```python
 from MLDeform import train
 training_data = train.train(path) # If you don't have matplotlib, set plot=False
 print(training_data)
 
+```
+
+Google collab setuo:
+
+I have setup a notebook that you can work on:
+
+```
+https://colab.research.google.com/gist/jakevdp/de56c474b41add4540deba2426534a49/empty-py2.ipynb
+
+#run following commands:
+!git clone https://github.com/syedharoonalam/MLDeform.git
+!pip install "tensorflow==1.14.0"
+
+#Create a new folder and upload all csv files for e.g. /content/<your training folder>
+#In your input_data.json change path of *.csv files to the above folder
+#Upload your input_data.json file
+
+#change path of training_data in train.py to your training data folder
+run !python /content/MLDeform/MLDeform/_training/train.py
+
+#This will create output training data
+
+Download output files
+!zip -r /content/<your training folder>.zip /content/<your training folder>
+
+In your local machine:
+In deformer.py inside loadModels function, change "path" to point at output_data.json file
+Correct paths of *.png, *.csv, and *.meta in output_data.json to point to local path as will be using this in Maya
 ```
 
 ### Deform
@@ -127,6 +168,8 @@ Take a look at the `test_deformer` function to see how to set this up on a sampl
 
 The deformer will now load up the Tensorflow models we wrote earlier and predict values based on the
 transforms of the joints it has been given.
+
+All of this has been automated in the loadDeformer.py provided in this repo
 
 ## Notes
 
