@@ -114,7 +114,7 @@ print(training_data)
 
 ```
 
-Google collab setuo:
+Google colab setup:
 
 I have setup a notebook that you can work on:
 
@@ -139,7 +139,7 @@ Download output files
 
 In your local machine:
 In deformer.py inside loadModels function, change "path" to point at output_data.json file
-Correct paths of *.png, *.csv, and *.meta in output_data.json to point to local path as will be using this in Maya
+Correct paths of *.png, *.csv, *.root *.meta in output_data.json to point to local path as will be using this in Maya
 ```
 
 ### Deform
