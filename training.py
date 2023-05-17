@@ -117,9 +117,9 @@ def train(input_directory: str, settings: Settings, show: bool = True) -> str:
 
 
 def __get_model(joints, verts, settings):
-    model_data = get_model(settings, joints, verts)
-    model = model_data[0]
-    input_name = model_data[1] if settings.architecture == Architecture.kDense else None
-    output_name = model_data[2] if settings.architecture == Architecture.kDense else None
+    r = get_model(settings, joints, verts)
+    model = r[0] if isinstance(r, (list, tuple)) else r
+    input_name = r[1] if isinstance(model, (list, tuple)) else None
+    output_name = r[2] if isinstance(model, (list, tuple)) else None
 
     return model, input_name, output_name

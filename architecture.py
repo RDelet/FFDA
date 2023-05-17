@@ -68,7 +68,7 @@ class Settings(object):
         return cls()
 
 
-def _get_model_dense(settings: Settings, joints: np.array, verts: np.array) -> tuple:
+def _get_model_mlp(settings: Settings, joints: np.array, verts: np.array) -> tuple:
     model = Sequential()
     if settings.layers < 2:
         log.warning("A minimum of 2 layers is required.")
@@ -91,19 +91,19 @@ def _get_model_dense(settings: Settings, joints: np.array, verts: np.array) -> t
     output_node = model.output.name
     input_node = f"{input_name}_input:0"
 
-    return (model, input_node, output_node)
+    return model, input_node, output_node
 
 
-def _get_model_rnn(settings: Settings, joints: np.array, verts: np.array) -> tuple:
+def _get_model_rnn(settings: Settings, joints: np.array, verts: np.array) -> Sequential:
     """Build a training model based on the joint and vertices with an RNN architecture (LSTM)"""
     model = Sequential()
     model.add(LSTM(settings.units, input_shape=(None, joints.shape[1])))
     model.add(Dense(verts.shape[1], activation=settings.activation))
 
-    return (model)
+    return model
 
 
-def _get_model_cnn(settings: Settings, joints: np.array, verts: np.array) -> tuple:
+def _get_model_cnn(settings: Settings, joints: np.array, verts: np.array) -> Sequential:
     """Build a training model based on the joint and vertices with a CNN architecture"""
     model = Sequential()
     model.add(Conv2D(32, (3, 3), activation=settings.activation_conv,
@@ -111,10 +111,10 @@ def _get_model_cnn(settings: Settings, joints: np.array, verts: np.array) -> tup
     model.add(Flatten())
     model.add(Dense(verts.shape[1], activation=settings.activation))
 
-    return (model)
+    return model
 
 
-_kMapping = {Architecture.kDense: _get_model_dense,
+_kMapping = {Architecture.kDense: _get_model_mlp,
              Architecture.kRnn: _get_model_rnn,
              Architecture.kCnn: _get_model_cnn}
 
