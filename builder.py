@@ -11,6 +11,7 @@ from fdda import context, utils as maya_utils
 from fdda.skin import Skin
 from fdda.fddaDeformerNode import FDDADeformerNode
 from fdda import training, constant as cst
+from fdda.training import Settings
 
 
 class SkinData:
@@ -168,7 +169,7 @@ class Builder(object):
     def load_plugin():
         pass
 
-    def build_models(self, out_dir: str, bind: bool = False):
+    def build_models(self, out_dir: str, bind: bool = False, settings: Settings = Settings.default()):
         """!Brief Build models from meshes.
 
         @out_dir: Model output directory.
@@ -183,7 +184,7 @@ class Builder(object):
             raise RuntimeError("Error on get data between {target} and {destination} !")
 
         try:
-            training_data = training.train(out_dir)
+            training_data = training.train(out_dir, settings)
         except Exception as e:
             log.debug(e)
             raise RuntimeError("Error on train model between {target} and {destination} !")
