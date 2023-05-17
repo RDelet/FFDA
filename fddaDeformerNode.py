@@ -36,8 +36,8 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
     kMatrixLong = "matrix"
     kMatrixShort = "mat"
 
-    def __init__(self, *args, **kwargs):
-        super(FDDADeformerNode, self).__init__(*args, **kwargs)
+    def __init__(self, *args):
+        super(FDDADeformerNode, self).__init__(*args)
 
         self.data_location = None
         self.location_changed = True
@@ -83,14 +83,6 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
         for out_attr in out_attrs:
             for in_attr in in_attrs:
                 cls.attributeAffects(in_attr, out_attr)
-
-    @classmethod
-    def get_input_mesh(cls, data: OpenMaya.MDataBlock, idx: int) -> OpenMaya.MObject:
-        """!@Brief Get deformer input mesh from input id."""
-        input_handle = data.outputArrayValue(OpenMayaMPx.cvar.MPxGeometryFilter_input)
-        input_handle.jumpToElement(idx)
-
-        return input_handle.outputValue().child(OpenMayaMPx.cvar.MPxGeometryFilter_inputGeom).asMesh()
 
     def __load_models(self, data: OpenMaya.MDataBlock):
         """!@Brief Load models from the json file given."""
@@ -176,10 +168,8 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
 
         return prediction
 
-    def __get_deltas(self, mesh: OpenMaya.MObject, matrices: list) -> np.array:
-        mesh_fn = OpenMaya.MFnMesh(mesh)
-        deltas = np.zeros(3 * mesh_fn.numVertices())
-
+    def __get_deltas(self, iterator: OpenMaya.MItGeometry, matrices: list) -> np.array:
+        deltas = np.zeros(3 * iterator.count())
         for i in range(len(matrices)):
             # Some joints don"t have a model in the json so skip them.
             model = self.models[i]
@@ -222,7 +212,7 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
 
         envelope = self.__get_envelope(data)
         matrices = self.__get_matrices(data, num_models)
-        deltas = self.__get_deltas(self.get_input_mesh(data, geom_id), matrices)
+        deltas = self.__get_deltas(iterator, matrices)
         self.__apply_deltas(deltas, envelope, iterator, data, geom_id)
 
     # noinspection PyPep8Naming
@@ -256,8 +246,7 @@ def initializePlugin(plugin):
 # noinspection PyPep8Naming
 def uninitializePlugin(plugin):
     plugin = OpenMayaMPx.MFnPlugin(plugin)
-
     try:
-        plugin.deregisterNode(FDDADeformerNode.id)
+        plugin.deregisterNode(FDDADeformerNode.kNodeID)
     except Exception:
         raise RuntimeError(f"Failed to unregister node: {FDDADeformerNode.kNodeName}")
