@@ -1,0 +1,2 @@
+model_checkpoint_path: "joint3"
+all_model_checkpoint_paths: "joint3"

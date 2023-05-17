@@ -46,130 +46,41 @@ You need to install `Maya 2022`
 
 Once installed run the following in command line:
 
-```mayapy.exe -m pip install numpy
-mayapy.exe -m pip install tensorflow==1.14
-
+```
+mayapy.exe -m pip install numpy
+mayapy.exe -m pip install tensorflow==1.15
+mayapy.exe -m pip install matplotlib
 ```
 
-### Simplifying Skinning
-
-This method requires that each joint have a single influence.
-We'll still use standard skinning with joints to provide stability to the deformation.
-However since each vertice only has one influence and no other deformations, the skinning is much faster and efficient.
-
-To simplify the skinning, in Maya you can run the following:
+### Train
 
 ```python
+import os
+import fdda
 
-from MLDeform import skinning
+# Activate pycharm debug (only for pycharm pro)
+debug_with_pycharm = False
+if debug_with_pycharm:
+    from fdda import pycharm_debug
+    pycharm_debug.connect(port=50016)
 
-# Get a target mesh.
-target = 'Tube'
+# Get output directory
+scene_name = cmds.file(query=True, sceneName=True)
+if not scene_name:
+    raise RuntimeError("Scene must be save before train !")
+directory_path, file_name = os.path.split(scene_name)
+output_path = os.path.normpath(os.path.join(directory_path, file_name.split(".")[0]))
+if not os.path.exists(output_path):
+    os.mkdir(output_path)
 
-# Clone it (you can do this yourself too)
-mesh = skinning.clone_mesh(target)
+# Train
+fdda.build_models("Tube", "Tube1", directory_path)
 
-# Skin the clone. You can also handle this yourself too.
-skinning.skin_mesh(mesh)
+# Load deformer node
+fdda.load_node()
 
-# Finally simplify the weights
-skinning.simplify_weights(mesh, fast=False)
-
+# ToDo: Create and set deformer
 ```
-
-There are two types of `simplify_weights` methods.
-
-* Fast: The fast method simply assigns the vertex to the joint with the maximum influence on it. This is pretty quick to run, but may not be the best choice if other deformations are used.
-
-* Not-Fast: This method samples the scene across all the frames, testing each vertex against every joint it is weighted by. This lets us find the joint that provides the closest deformation to the target shape. It can be slower, but will give much better results.
-
-### Writing Data
-
-We need to write data to train the machine learning system
-
-```python
-from MLDeform import writer
-
-# Write out the data to this location
-# Will default to your Maya directory if none is given
-outdir = 'Path/To/Write/To'
-
-# Write the data out to the above location
-path = writer.write(mesh, target, outdir=outdir)
-
-```
-
-### Training Models
-
-Now we train the models!
-
-There are two ways of doing it, in your local machine if you have tensorflow correctly setup or you can use Google Colab if you plan to implement training on cloud
-
-Local machine setup:
-
-```python
-from MLDeform import train
-training_data = train.train(path) # If you don't have matplotlib, set plot=False
-print(training_data)
-
-```
-
-Google colab setup:
-
-I have setup a notebook that you can work on:
-
-```
-https://colab.research.google.com/gist/jakevdp/de56c474b41add4540deba2426534a49/empty-py2.ipynb
-
-#run following commands:
-!git clone https://github.com/syedharoonalam/MLDeform.git
-!pip install "tensorflow==1.14.0"
-
-#Create a new folder and upload all csv files for e.g. /content/<your training folder>
-#In your input_data.json change path of *.csv files to the above folder
-#Upload your input_data.json file
-
-#change path of training_data in train.py to your training data folder
-run !python /content/MLDeform/MLDeform/_training/train.py
-
-#This will create output training data
-
-Download output files
-!zip -r /content/<your training folder>.zip /content/<your training folder>
-
-In your local machine:
-In deformer.py inside loadModels function, change "path" to point at output_data.json file
-Correct paths of *.png, *.csv, *.root *.meta in output_data.json to point to local path as will be using this in Maya
-```
-
-### Deform
-
-Below steps has been automated in the ```loadDeformer.py``` provided in this repo
-
-You can load the deformer by running:
-
-```python
-from MLDeform import deformer
-deformer.load_plugin()
-
-```
-
-Additionally you can add `MLDeform._maya` to your `MAYA_PLUGIN_PATH` so Maya can always find the plugin.
-Otherwise you will need to run this every time.
-
-Create the deformer using
-
-```python
-from maya import cmds
-deformer = cmds.deformer(mesh, type='mldeformer')
-
-```
-
-Finally set the location of the `output_data.json` on the deformer and connect the joints up.
-Take a look at the `test_deformer` function to see how to set this up on a sample scene.
-
-The deformer will now load up the Tensorflow models we wrote earlier and predict values based on the
-transforms of the joints it has been given.
 
 ## Notes
 
@@ -188,8 +99,10 @@ Here are projects used as references for this
 * [Fast and Deep Deformation Approximations](http://graphics.berkeley.edu/papers/Bailey-FDD-2018-08/index.html)
  ( Stephen W. Bailey, Dave Otte, Paul Dilorenzo, and James F. O'Brien. )
  
- * ['Fast and Deep Deformation Approximations’ Implementation](http://3deeplearner.com/fdda-implementation/)
+* ['Fast and Deep Deformation Approximations’ Implementation](http://3deeplearner.com/fdda-implementation/)
  ( [3DeepLearner](http://3deeplearner.com/) )
+
+* (https://github.com/syedharoonalam/MLDeform)
  
  
 ## Dependencies
@@ -200,7 +113,7 @@ Here are projects used as references for this
  
 * **six**
    
- Needed for supporting Python2 and Python3
+ Needed for supporting Python3
 
 * **tensorflow**
  
@@ -216,18 +129,8 @@ Here are projects used as references for this
  
  * **pandas**
 
-    Necessary for efficient processing of data objects
-    
-### Optional
-  
+    Necessary for efficient processing of data objects  
   
 * **matplotlib**
 
   If you intend to display training plots, this is an optional requirement.
-  
-## Related Projects
-
-* [MeshCompare](https://github.com/dgovil/MeshCompare)
-
-  MeshCompare is a set of scripts and plugins for Maya that will color each vertex according to how far it is from the target mesh.
-  This is really useful in visually seeing how far the machine learning predictions are from the target mesh.

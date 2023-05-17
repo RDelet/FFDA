@@ -1,0 +1,2 @@
+model_checkpoint_path: "BB_R_ForeArm"
+all_model_checkpoint_paths: "BB_R_ForeArm"
