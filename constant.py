@@ -9,7 +9,8 @@ kOutputName = "output_data"
 kExtension = "json"
 kJsonIndent = 4
 
-kNodeType = Union[str, OpenMaya.MObject, OpenMaya.MDagPath]
+kdagType = Union[str, OpenMaya.MObject, OpenMaya.MDagPath]
+kdepType = Union[str, OpenMaya.MObject, OpenMaya.MDagPath]
 
 kMatrixHeading = ["m00", "m01", "m02", "m03",
                   "m10", "m11", "m12", "m13",

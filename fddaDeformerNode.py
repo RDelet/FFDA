@@ -17,6 +17,7 @@ TFModel = namedtuple("TFModel", ["graph", "session", "input_tensor", "output_ten
 
 
 class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
+
     kNodeName = "fdda"
     kNodeID = OpenMaya.MTypeId(0x0012d5c1)
 

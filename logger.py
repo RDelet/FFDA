@@ -33,4 +33,4 @@ def set_log_level(log_level):
 
 log = logging.getLogger("FFDA")
 log.addHandler(stream_handler)
-set_log_level(logging.INFO)
+set_log_level(logging.DEBUG)

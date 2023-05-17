@@ -3,7 +3,6 @@ import copy
 import csv
 import json
 import os
-from typing import Union
 
 from maya import cmds, OpenMaya
 
@@ -84,10 +83,12 @@ class MeshData:
 
 class Builder(object):
 
-    def __init__(self, target: cst.kNodeType = None, destination: cst.kNodeType = None, file: str = None):
+    def __init__(self, target: cst.kdagType = None, destination: cst.kdagType = None, file: str = None):
         self._target = self.__get_node(target)
         self._destination = self.__get_node(destination)
         self._file = file
+        self._data = None
+        self._deformer = None
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -98,6 +99,10 @@ class Builder(object):
     @staticmethod
     def __get_node(n):
         if isinstance(n, (str, OpenMaya.MObject)):
+            if isinstance(n, str):
+                n = maya_utils.get_object(n)
+            if not n.hasFn(OpenMaya.MFn.kDagNode):
+                return n
             return maya_utils.get_path(n)
         elif isinstance(n, OpenMaya.MDagPath):
             return n
@@ -108,6 +113,7 @@ class Builder(object):
         self._target = None
         self._destination = None
         self._file = None
+        self._deformer = None
 
     @property
     def file(self) -> str:
@@ -116,15 +122,23 @@ class Builder(object):
     @file.setter
     def file(self, value):
         if not os.path.exists(value):
-            raise RuntimeError(f"Path {self.file} does not exists !")
+            raise RuntimeError(f"Path {value} does not exists !")
+
         self._file = value
+        with open(self._file, 'r') as stream:
+            self._data = json.load(stream)
+
+        if self._deformer is not None:
+            deformer_name = maya_utils.name_of(self._deformer)
+            cmds.setAttr(f"{deformer_name}.{FDDADeformerNode.kTrainingDataLong}",
+                         self._file, type='string')
 
     @property
     def target(self) -> OpenMaya.MDagPath:
         return self._target
 
     @target.setter
-    def target(self, value: Union[str, OpenMaya.MObject, OpenMaya.MDagPath]):
+    def target(self, value: cst.kdagType):
         self._target = self.__get_node(value)
 
     @property
@@ -132,8 +146,16 @@ class Builder(object):
         return self._destination
 
     @destination.setter
-    def destination(self, value: Union[str, OpenMaya.MObject, OpenMaya.MDagPath]):
+    def destination(self, value: cst.kdagType):
         self._destination = self.__get_node(value)
+
+    @property
+    def deformer(self) -> OpenMaya.MDagPath:
+        return self._deformer
+
+    @deformer.setter
+    def deformer(self, value: cst.kdepType):
+        self._deformer = self.__get_node(value)
 
     @property
     def data(self) -> dict:
@@ -146,15 +168,16 @@ class Builder(object):
     def load_plugin():
         pass
 
-    def build_models(self, out_dir: str):
+    def build_models(self, out_dir: str, bind: bool = False):
         """!Brief Build models from meshes.
-        
-        @target: Mesh with deformation layer.
-        @destination: Mesh deformed only by skinCluster.
+
         @out_dir: Model output directory.
+        @bind: Bind deformer after train.
         """
         try:
             input_path = self._data_acquisition(out_dir=out_dir)
+            input_dir, _ = os.path.split(input_path)
+            self._file = os.path.normpath(os.path.join(input_dir, f"{cst.kOutputName}.{cst.kExtension}"))
         except Exception as e:
             log.debug(e)
             raise RuntimeError("Error on get data between {target} and {destination} !")
@@ -165,30 +188,37 @@ class Builder(object):
             log.debug(e)
             raise RuntimeError("Error on train model between {target} and {destination} !")
 
-        input_dir, _ = os.path.split(input_path)
-        self._file = os.path.normpath(os.path.join(input_dir, f"{cst.kOutputName}.{cst.kExtension}"))
+        if bind:
+            self._bind()
 
         return training_data
 
-    def bind(self, mesh) -> str:
-        """!@Brief Bind FDDA deformer on given mesh"""
-        self.load_plugin()
+    def _bind(self):
+        dst_name = maya_utils.name_of(self.destination)
+        try:
+            self.deformer = cmds.deformer(dst_name, type=FDDADeformerNode.kNodeName)[0]
+        except Exception as e:
+            log.debug(e)
+            raise RuntimeError(f"Error on bind deformer on {dst_name}!")
 
-        if not self.file:
-            raise RuntimeError(f"No file set !")
-        if not cmds.objExists(mesh):
-            raise RuntimeError(f"Mesh {mesh} does not exists !")
+        self.file = self.file
 
-        maya_utils.go_to_start_frame()
-        deformer = cmds.deformer(mesh, type=FDDADeformerNode.kNodeName)[0]
-        cmds.setAttr(f"{deformer}.{FDDADeformerNode.kTrainingData}", self._file, type='string')
-        joint_names = self.data.get('joint_names', list())
+        deformer_name = maya_utils.name_of(self.deformer)
+        joint_names = self._data.get('joint_names', list())
         for i, jnt in enumerate(joint_names):
-            cmds.connectAttr(f"{jnt}.matrix", f"{deformer}.matrix[{i}]")
+            cmds.connectAttr(f"{jnt}.matrix", f"{deformer_name}.matrix[{i}]")
 
-        return deformer
+    @classmethod
+    def bind(cls, destination: cst.kdagType, file: str):
+        """!@Brief Bind FDDA deformer."""
+        maya_utils.go_to_start_frame()
+        fdda = Builder(destination=destination, file=file)
+        fdda._bind()
 
-    def _data_acquisition(self, out_dir: str = None, start: float = None, end: float = None) -> str:
+        return fdda
+
+    def _data_acquisition(self, out_dir: str = None,
+                          start: float = None, end: float = None) -> str:
         """!@Brief Write out data for the machine learning algorithm to train from.
         @param out_dir: The directory to write to. If no directory is provided, uses training directory.
         @param start: The start frame to write from.
