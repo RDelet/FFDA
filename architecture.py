@@ -1,7 +1,7 @@
 import numpy as np
 
-from tensorflow.contrib.keras.api.keras.layers import Dense, LSTM, Conv2D, Flatten
-from tensorflow.contrib.keras.api.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM, Conv2D, Flatten
+from tensorflow.keras.models import Sequential
 
 from fdda.logger import log
 
@@ -74,24 +74,17 @@ def _get_model_mlp(settings: Settings, joints: np.array, verts: np.array) -> tup
         log.warning("A minimum of 2 layers is required.")
         settings.layers = 2
 
-    input_name = 'input_node'
-    output_name = 'output_node'
     for layer in range(settings.layers):
         if not layer:
-            model.add(Dense(settings.units, input_dim=joints.shape[1],
-                            activation=settings.activation, name=input_name))
+            model.add(Dense(settings.units, input_dim=joints.shape[1], activation=settings.activation))
             continue
         if layer == settings.layers - 1:
-            model.add(Dense(verts.shape[1], activation='linear', name=output_name))
+            model.add(Dense(verts.shape[1], activation='linear'))
             continue
 
-        model.add(Dense(settings.units, input_dim=settings.input_dim,
-                        activation=settings.activation, name=f"dense_layer_{layer}"))
+        model.add(Dense(settings.units, input_dim=settings.input_dim, activation=settings.activation))
 
-    output_node = model.output.name
-    input_node = f"{input_name}_input:0"
-
-    return model, input_node, output_node
+    return model
 
 
 def _get_model_rnn(settings: Settings, joints: np.array, verts: np.array) -> Sequential:

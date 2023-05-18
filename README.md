@@ -48,7 +48,7 @@ Once installed run the following in command line:
 
 ```
 mayapy.exe -m pip install numpy
-mayapy.exe -m pip install tensorflow==1.15
+mayapy.exe -m pip install tensorflow
 mayapy.exe -m pip install matplotlib
 ```
 
@@ -59,11 +59,11 @@ import os
 
 import fdda
 from fdda.logger import log
-from fdda.architecture import Settings
+from fdda.architecture import Activation, Settings
 
 
 # Activate pycharm debug (only for pycharm pro)
-debug_with_pycharm = True
+debug_with_pycharm = False
 if debug_with_pycharm:
     from fdda import pycharm_debug
     pycharm_debug.connect(port=50016)
@@ -72,7 +72,6 @@ if debug_with_pycharm:
 scene_name = cmds.file(query=True, sceneName=True)
 if not scene_name:
     raise RuntimeError("Scene must be save before train !")
-
 directory_path, file_name = os.path.split(scene_name)
 output_path = os.path.normpath(os.path.join(directory_path, file_name.split(".")[0]))
 if not os.path.exists(output_path):
@@ -80,11 +79,17 @@ if not os.path.exists(output_path):
     log.info(f"Create directory: {output_path}")
 
 # Train
+selected = cmds.ls(selection=True, long=True)
+if len(selected) != 2:
+    raise RuntimeError("Selected Target and Destination !")
+
 settings = Settings.default()
-settings.rate = 1e-4
-settings.layers = 5
-settings.epochs = 300
-fdda.build_models("Tube", "Tube1", output_path, settings=settings, bind=True)
+settings.rate = 1e-3
+settings.layers = 3
+settings.epochs = 200
+settings.activation = Activation.kRelu
+
+fdda.build_models(selected[0], selected[1], output_path, settings=settings, bind=True)
 ```
 
 ## Notes

@@ -10,7 +10,7 @@ from tensorflow import keras
 
 from fdda.logger import log
 from fdda import constant as cst
-from fdda.architecture import Architecture, get_model, Settings
+from fdda.architecture import get_model, Settings
 
 _plot = True
 try:
@@ -33,8 +33,8 @@ def make_plot(history, output, show=True):
     @param output: Where to save the plot
     @param show: Whether to show the plot
     """
-    plt.plot(history.history['mean_squared_error'])
-    plt.plot(history.history['val_mean_squared_error'])
+    plt.plot(history.history['mse'])
+    plt.plot(history.history['val_mse'])
     plt.ylabel('mean_squared_error')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
@@ -76,34 +76,28 @@ def train(input_directory: str, settings: Settings, show: bool = True) -> str:
         verts = df.iloc[:, len(joint_columns):]
 
         # Start making the model
-        with tf.Session(graph=tf.Graph()) as session:
-            model, input_name, output_name = __get_model(joints, verts, settings)
+        model = get_model(settings, joints, verts)
 
-            # Generate the optimizer and train the model
-            adam = keras.optimizers.Adam(lr=settings.rate)
-            model.compile(loss='mse', optimizer=adam, metrics=['mse'])
-            history = model.fit(joints, verts, epochs=settings.epochs,
-                                validation_split=settings.split,
-                                batch_size=settings.batch_size)
+        # Generate the optimizer and train the model
+        adam = keras.optimizers.Adam(lr=settings.rate)
+        model.compile(loss='mse', optimizer=adam, metrics=['mse'])
+        history = model.fit(joints, verts, epochs=settings.epochs,
+                            validation_split=settings.split,
+                            batch_size=settings.batch_size)
 
-            # Show the plots
-            plot_image = None
-            if _plot:
-                plot_image = os.path.join(export_directory, f"{file_name}.png")
-                make_plot(history, plot_image, show=show)
+        # Show the plots
+        plot_image = None
+        if _plot:
+            plot_image = os.path.join(export_directory, f"{file_name}.png")
+            make_plot(history, plot_image, show=show)
 
-            export_path = os.path.join(export_directory, file_name)
+        # Save the keras model as a tensorflow model
+        model.save(export_directory)
 
-            # Save the keras model as a tensorflow model
-            saver = tf.train.Saver(save_relative_paths=True)
-            saver.save(session, export_path)
-
-            # Store the data in a dict
-            model_data = {'root': export_directory,
-                          'meta': export_path + '.meta',
-                          'input': input_name,
-                          'output': output_name,
-                          'plot': plot_image}
+        # Store the data in a dict
+        model_data = {'root': export_directory,
+                      'meta': export_directory + '.meta',
+                      'plot': plot_image}
 
         # Then write this dict to the master dict
         input_data.setdefault('models', []).append(model_data)
@@ -114,12 +108,3 @@ def train(input_directory: str, settings: Settings, show: bool = True) -> str:
         json.dump(input_data, f, indent=cst.kJsonIndent)
 
     return output_data
-
-
-def __get_model(joints, verts, settings):
-    r = get_model(settings, joints, verts)
-    model = r[0] if isinstance(r, (list, tuple)) else r
-    input_name = r[1] if isinstance(model, (list, tuple)) else None
-    output_name = r[2] if isinstance(model, (list, tuple)) else None
-
-    return model, input_name, output_name

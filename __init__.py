@@ -28,9 +28,9 @@ if len(selected) != 2:
     raise RuntimeError("Selected Target and Destination !")
 
 settings = Settings.default()
-settings.rate = 1e-4
-settings.layers = 6
-settings.epochs = 400
+settings.rate = 1e-3
+settings.layers = 3
+settings.epochs = 200
 settings.activation = Activation.kRelu
 fdda.build_models(selected[0], selected[1], output_path, settings=settings, bind=True)
 """

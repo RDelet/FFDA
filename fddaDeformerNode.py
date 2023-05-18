@@ -5,7 +5,6 @@ import os
 from collections import namedtuple
 
 import tensorflow as tf
-from tensorflow import Session, Graph
 
 from maya import OpenMaya, OpenMayaMPx
 
@@ -13,7 +12,7 @@ from fdda import utils as maya_utils
 from fdda.logger import log
 
 
-TFModel = namedtuple("TFModel", ["graph", "session", "input_tensor", "output_tensor", "vertices"])
+TFModel = namedtuple("TFModel", ["sequential", "vertices"])
 
 
 class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
@@ -97,7 +96,15 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
             return
 
         for i, model in enumerate(models):
-            self.models.append(self.__deserialize_model(i, data, model) if model else None)
+            if model:
+                tf_model = self.__deserialize_model(i, data, model)
+                self.models.append(tf_model)
+
+    def __deserialize_model(self, model_ids: int, data: dict, model: dict) -> TFModel:
+        vertices = data[self.kJointMap][model_ids]
+        sequential = tf.keras.models.load_model(model[self.kRoot])
+
+        return TFModel(sequential=sequential, vertices=vertices)
 
     def __read_models(self, path: str) -> dict:
         data = dict()
@@ -118,23 +125,6 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
             return data
 
         return data
-
-    def __deserialize_model(self, model_ids: int, data: dict, model: dict) -> TFModel:
-        vertices = data[self.kJointMap][model_ids]
-        graph = Graph()
-        with graph.as_default():
-            session = Session()
-            with session.as_default():
-                meta = model.get(self.kMeta)
-                root = model.get(self.kRoot)
-                saver = tf.train.import_meta_graph(meta)
-                saver.restore(session, tf.train.latest_checkpoint(root))
-
-                return TFModel(graph=session.graph,
-                               session=session,
-                               input_tensor=session.graph.get_tensor_by_name(model[self.kInput]),
-                               output_tensor=session.graph.get_tensor_by_name(model[self.kOutput]),
-                               vertices=vertices)
 
     @classmethod
     def __get_envelope(cls, data: OpenMaya.MDataBlock) -> float:
@@ -160,14 +150,9 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
     def __get_prediction(cls, model: TFModel, values: np.array) -> np.array:
         # Keras trains with the regular shape, but tensorflow expects the transposed version.
         array = np.array([[v] for v in values]).T
+        prediction = model.sequential.predict(array)
 
-        # Set the graph and session, and guess the values.
-        with model.graph.as_default():
-            with model.session.as_default():
-                results = model.session.run(model.output_tensor, feed_dict={model.input_tensor: array})
-                prediction = results[0]
-
-        return prediction
+        return prediction[0]
 
     def __get_deltas(self, iterator: OpenMaya.MItGeometry, matrices: list) -> np.array:
         deltas = np.zeros(3 * iterator.count())
