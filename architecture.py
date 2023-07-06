@@ -14,7 +14,7 @@ class Activation(object):
     kElu = "elu"
     kLinear = "linear"
 
-    kDefault = kSigmoid
+    kDefault = kTanH
 
 
 class Architecture(object):
@@ -27,7 +27,7 @@ class Settings(object):
 
     __kRateDefault = 0.001
     __kEpochsDefault = 200
-    __kSplitDefault = 0.01
+    __kSplitDefault = 0.3
     __kBatchSizeDefault = None
     __kUnitsDefault = 512
     __kInputDimDefault = 100
@@ -47,7 +47,7 @@ class Settings(object):
         @param split: The training/testing split. Defaults to 0.3 for 70% training 30% test.
         @param batch_size: The batch size to train with.
         @param show: Show the plot after each model is done training.
-        @param activation: What kind of activation to use. Defaults to sigmoid
+        @param activation: What kind of activation to use. Defaults to tanh
         @param units: What units to use for intermediate layers.
         @param input_dim: Input dimensions to use for intermediate layers.
         @param layers: The number of layers to use. A minimum of 2 is enforced.
@@ -68,7 +68,7 @@ class Settings(object):
         return cls()
 
 
-def _get_model_mlp(settings: Settings, joints: np.array, verts: np.array) -> tuple:
+def _get_model_mlp(settings: Settings, joints: np.array, verts: np.array) -> Sequential:
     model = Sequential()
     if settings.layers < 2:
         log.warning("A minimum of 2 layers is required.")

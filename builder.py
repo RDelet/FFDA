@@ -3,7 +3,7 @@ import copy
 import csv
 import json
 import os
-
+import time
 from maya import cmds, OpenMaya
 
 from fdda.logger import log
@@ -44,6 +44,7 @@ class SkinData:
                 if weight > 0:
                     self.weight_map.append(weight)
                     self.joint_map[i].append(vtx)
+                    break
 
 
 class MeshData:
@@ -57,12 +58,14 @@ class MeshData:
         self.skin_data.clear()
 
     def get(self, target: OpenMaya.MDagPath, destination: OpenMaya.MDagPath, start: float = None, end: float = None):
+        """!@Brief: Build data from a maya scene. Input: Joint quaternion and translation vector and delta between 
+        target and source object."""
         self.clear()
         self.skin_data.get(destination)
 
         inf_names = self.skin_data.skin.influences_names
         self.frame_data = {jnt: list() for jnt in inf_names}
-
+		
         with context.KeepCurrentFrame():
             for frame in maya_utils.time_line_range(start=start, end=end):
                 log.info(f"Processing frame: {frame}")
@@ -75,7 +78,14 @@ class MeshData:
 
                 for jnt_id, vertices in enumerate(self.skin_data.joint_map):
                     jnt = inf_names[jnt_id]
-                    data = maya_utils.array_from_matrix(maya_utils.matrix_of(jnt, world=False))
+                    
+                    # Conversion homogenous transformation matrix (4x4) to quaternion and translation vector
+                    local_mat = maya_utils.matrix_of(jnt, world=False)
+                    local_tr = OpenMaya.MTransformationMatrix(local_mat)
+                    q = local_tr.rotation()
+                    pos = local_tr.getTranslation(OpenMaya.MSpace.kObject)
+                    data = [q.x, q.y, q.z, q.w, pos.x, pos.y, pos.z]
+                    
                     for vtx_id in vertices:
                         delta = target_pts[vtx_id] - destination_pts[vtx_id]
                         data.extend([delta.x, delta.y, delta.z])

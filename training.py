@@ -27,17 +27,19 @@ def read_inputs(directory: str) -> dict:
         return json.load(f)
 
 
-def make_plot(history, output, show=True):
+def make_plot(history, output, legend=None, show=True):
     """!@Brief Build a model from the trained keras model
     @param history: The output of the trained model
     @param output: Where to save the plot
+	@param legend: Name of each traced curve
     @param show: Whether to show the plot
     """
     plt.plot(history.history['mse'])
     plt.plot(history.history['val_mse'])
     plt.ylabel('mean_squared_error')
     plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+    if legend is not None:
+        plt.legend(legend, loc='upper left')
     plt.savefig(output)
     if show:
         plt.show()
@@ -45,15 +47,20 @@ def make_plot(history, output, show=True):
     return plt
 
 
-def train(input_directory: str, settings: Settings, show: bool = True) -> str:
+def train(input_directory: str, settings: Settings, show: bool = True, reproducibility: bool = True) -> str:
     """!@Brief Train the model from written data
 
     @return: The path to the output json file
     """
+    if reproducibility:
+        tf.keras.utils.set_random_seed(42)  			# sets seeds for base-python, numpy and tf
+        tf.config.experimental.enable_op_determinism()
+
     input_data = read_inputs(input_directory)
     csv_files = input_data.get('csv_files', list())
     joint_columns = input_data.get('input_fields', cst.kMatrixHeading)
 
+    legend = []
     for i, csv_file in enumerate(csv_files):
 
         # Prepare the filesystem to write
@@ -79,7 +86,7 @@ def train(input_directory: str, settings: Settings, show: bool = True) -> str:
         model = get_model(settings, joints, verts)
 
         # Generate the optimizer and train the model
-        adam = keras.optimizers.Adam(lr=settings.rate)
+        adam = keras.optimizers.Adam(learning_rate=settings.rate)
         model.compile(loss='mse', optimizer=adam, metrics=['mse'])
         history = model.fit(joints, verts, epochs=settings.epochs,
                             validation_split=settings.split,
@@ -89,7 +96,9 @@ def train(input_directory: str, settings: Settings, show: bool = True) -> str:
         plot_image = None
         if _plot:
             plot_image = os.path.join(export_directory, f"{file_name}.png")
-            make_plot(history, plot_image, show=show)
+            curr_jnt = 'jnt_' + str(i + 1)
+            legend.extend(['train_' + curr_jnt, 'test_' + curr_jnt])
+            make_plot(history, plot_image, legend=legend, show=show)
 
         # Save the keras model as a tensorflow model
         model.save(export_directory)

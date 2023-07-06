@@ -99,6 +99,8 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
             if model:
                 tf_model = self.__deserialize_model(i, data, model)
                 self.models.append(tf_model)
+            if model == None:
+                self.models.append(None)
 
     def __deserialize_model(self, model_ids: int, data: dict, model: dict) -> TFModel:
         vertices = data[self.kJointMap][model_ids]
@@ -142,8 +144,13 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
         for i in range(matrix_count):
             matrices_handle.jumpToElement(i)
             matrix_handle = matrices_handle.inputValue()
-            matrices.append(np.array(maya_utils.array_from_matrix(matrix_handle.asMatrix())))
-
+            
+            # Conversion homogenous transformation matrix (4x4) to quaternion and translation vector
+            tr = OpenMaya.MTransformationMatrix(matrix_handle.asMatrix())
+            q = tr.rotation()
+            pos = tr.getTranslation(OpenMaya.MSpace.kObject)
+            matrices.append(np.array([q.x, q.y, q.z, q.w, pos.x, pos.y, pos.z]))
+			
         return matrices
 
     @classmethod
