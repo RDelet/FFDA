@@ -4,28 +4,31 @@ import numpy as np
 import os
 from collections import namedtuple
 
-import tensorflow as tf
+import torch
 
 from maya import OpenMaya, OpenMayaMPx
 
-from fdda import utils as maya_utils
-from fdda.logger import log
+from fdda.training.PyTorch.architecture import MultiLayerPerceptron
+from fdda.training.PyTorch.math import feature_standardization
+from fdda.core.logger import log
 
 
-TFModel = namedtuple("TFModel", ["sequential", "vertices"])
+TorchModel = namedtuple("TorchModel", ["model", "vertices"])
 
 
 class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
-
     kNodeName = "fdda"
     kNodeID = OpenMaya.MTypeId(0x0012d5c1)
 
     kModels = "models"
     kJointMap = "joint_map"
-    kMeta = "meta"
-    kRoot = "root"
-    kInput = "input"
-    kOutput = "output"
+    kModel = "model"
+    kBestModel = "best_model"
+    kDevice = "device"
+    kMean = "mean"
+    kStd = "std"
+    kNormalized = "normalized"
+    kMode = 'global_mode'
 
     # Attributes
     DATA_LOCATION = OpenMaya.MObject()
@@ -43,15 +46,23 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
         self.location_changed = True
         self.models = list()
 
-    def __str__(self) -> str:
-        return self.__repr__()
+        self.mean = list()
+        self.std = list()
 
+        self.device = 'cpu'
+
+    def __str__(self) -> str:
+        return self.__repr__
+    
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(DataLocation: {self.data_location})"
+        return f"FDDA(class: {self.__class__.__name__}, DataLocation: {self.data_location})"
 
     def _clear(self):
         self.data_location = None
         self.models = list()
+
+        self.mean = list()
+        self.std = list()
 
     @classmethod
     def creator(cls):
@@ -95,18 +106,44 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
         if not models:
             return
 
+        self.device = torch.device('cuda:0' if (torch.cuda.is_available() and data[self.kDevice] == 'gpu') else 'cpu')
+
+        self.normalized = data[self.kNormalized]
+        self.mode = data[self.kMode]
+
         for i, model in enumerate(models):
             if model:
-                tf_model = self.__deserialize_model(i, data, model)
-                self.models.append(tf_model)
-            if model == None:
+                mean, std = self.__get_stats(model)
+                self.mean.append(mean)
+                self.std.append(std)
+
+                model = self.__deserialize_model(i, data, model)
+                self.models.append(model)
+            if model is None:
                 self.models.append(None)
+                self.mean.append(None)
+                self.std.append(None)
 
-    def __deserialize_model(self, model_ids: int, data: dict, model: dict) -> TFModel:
-        vertices = data[self.kJointMap][model_ids]
-        sequential = tf.keras.models.load_model(model[self.kRoot])
+    def __get_stats(self, model):
+        mean = model[self.kMean]
+        std = model[self.kStd]
+        return mean, std
 
-        return TFModel(sequential=sequential, vertices=vertices)
+    def __deserialize_model(self, model_ids: int, data: dict, model: dict) -> TorchModel:
+        if self.mode:
+            vertices = np.concatenate(data[self.kJointMap], dtype=np.float32)
+            vertices = vertices.astype(np.int32)
+        else:
+            vertices = data[self.kJointMap][model_ids]
+
+        checkpoint = torch.load(model[self.kBestModel])
+        model = MultiLayerPerceptron(settings=checkpoint['settings'],
+                                     input_shape=checkpoint['input_shape'],
+                                     output_shape=checkpoint['output_shape'])
+        model.to(self.device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+
+        return TorchModel(model=model, vertices=vertices)
 
     def __read_models(self, path: str) -> dict:
         data = dict()
@@ -137,39 +174,56 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
 
         matrices_handle = data.inputArrayValue(self.IN_MATRICES)
         matrix_count = matrices_handle.elementCount()
-        if matrix_count > num_models:
-            log.error("More input joints than models !")
+        # In local mode, we need to have the same number of joints and models.
+        if matrix_count > num_models and not self.mode:
+            log.error("More input joints than models ! ({} joints and {} models.".format(matrix_count, num_models))
             return matrices
 
         for i in range(matrix_count):
             matrices_handle.jumpToElement(i)
             matrix_handle = matrices_handle.inputValue()
-            
+
             # Conversion homogenous transformation matrix (4x4) to quaternion and translation vector
-            tr = OpenMaya.MTransformationMatrix(matrix_handle.asMatrix())
-            q = tr.rotation()
-            pos = tr.getTranslation(OpenMaya.MSpace.kObject)
-            matrices.append(np.array([q.x, q.y, q.z, q.w, pos.x, pos.y, pos.z]))
-			
+            transform = OpenMaya.MTransformationMatrix(matrix_handle.asMatrix())
+            q = transform.rotation()
+            matrices.append(np.array([q.x, q.y, q.z, q.w], dtype=np.float32))
+
+        if self.mode:
+            matrices = [np.concatenate(matrices)]
+
         return matrices
 
-    @classmethod
-    def __get_prediction(cls, model: TFModel, values: np.array) -> np.array:
-        # Keras trains with the regular shape, but tensorflow expects the transposed version.
-        array = np.array([[v] for v in values]).T
-        prediction = model.sequential.predict(array)
+    def __get_prediction(self, model: TorchModel, values: np.array, mean: list, std: list) -> np.array:
+        # Apply normalization
+        if self.normalized:
+            mean = np.array(mean, dtype=np.float32)
+            std = np.array(std, dtype=np.float32)
+            values = feature_standardization(values, mean, std)
 
-        return prediction[0]
+        # Convert Numpy -> torch.Tensor
+        values = torch.from_numpy(values).to(self.device)
+
+        # Prediction
+        prediction = model.model(values)
+
+        # Convert torch.Tensor -> Numpy
+        prediction = prediction.detach().cpu().numpy()
+
+        return prediction
 
     def __get_deltas(self, iterator: OpenMaya.MItGeometry, matrices: list) -> np.array:
         deltas = np.zeros(3 * iterator.count())
+
         for i in range(len(matrices)):
             # Some joints don"t have a model in the json so skip them.
             model = self.models[i]
+            mean = self.mean[i]
+            std = self.std[i]
             if not model:
                 continue
 
-            prediction = self.__get_prediction(model, matrices[i])
+            prediction = self.__get_prediction(model, matrices[i], mean, std)
+
             for j, vtx in enumerate(model.vertices):
                 deltas[vtx * 3:(vtx * 3) + 3] = prediction[j * 3:(j * 3) + 3]
 

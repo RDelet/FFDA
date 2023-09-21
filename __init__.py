@@ -1,16 +1,13 @@
 """
+# -----------------------
+# Script pour Maya:
+# -----------------------
+
 import os
 
 import fdda
-from fdda.logger import log
-from fdda.architecture import Activation, Settings
-
-
-# Activate pycharm debug (only for pycharm pro)
-debug_with_pycharm = False
-if debug_with_pycharm:
-    from fdda import pycharm_debug
-    pycharm_debug.connect(port=50016)
+from fdda.core.logger import log
+from fdda.maya.builder import Builder
 
 # Get output directory
 scene_name = cmds.file(query=True, sceneName=True)
@@ -25,41 +22,11 @@ if not os.path.exists(output_path):
 # Train
 selected = cmds.ls(selection=True, long=True)
 if len(selected) != 2:
-    raise RuntimeError("Selected Target and Destination !")
+    raise RuntimeError("Selected Source and Destination !")
 
-settings = Settings.default()
-settings.rate = 1e-3
-settings.layers = 3
-settings.epochs = 200
-settings.activation = Activation.kRelu
-fdda.build_models(selected[0], selected[1], output_path, settings=settings, bind=True)
+# Build data from source and destination meshes.
+data_builder = Builder(*selected)
+data_builder.do(output_path)
+
+fdda.bind(dst=destination, input_directory=output_path)
 """
-
-import os
-
-from maya import cmds
-
-from fdda.architecture import Settings
-from fdda.builder import Builder
-from fdda.logger import log
-
-_directory = os.path.split(__file__)[0]
-
-
-def build_models(target: str, destination: str, output_directory: str,
-                 bind: bool = False, settings: Settings = Settings.default()):
-    fdda_builder = Builder(target, destination)
-    fdda_builder.build_models(output_directory, bind=bind, settings=settings)
-
-
-def load_node():
-    node_path = os.path.normpath(os.path.join(_directory, "fddaDeformerNode.py"))
-    if not cmds.pluginInfo(node_path, query=True, loaded=True):
-        cmds.loadPlugin(node_path)
-
-
-try:
-    load_node()
-except Exception as e:
-    log.debug(e)
-    raise RuntimeError("Error on load FDDA plugin !")

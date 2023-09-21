@@ -1,5 +1,5 @@
 import math
-from typing import Union
+from typing import Union, Optional
 
 from maya import cmds, OpenMaya, OpenMayaAnim
 
@@ -22,7 +22,6 @@ def get_object(n: str) -> OpenMaya.MObject:
 
 
 def get_path(n: Union[str, OpenMaya.MObject]) -> OpenMaya.MDagPath:
-
     if isinstance(n, str):
         try:
             _msl.clear()
@@ -50,7 +49,20 @@ def get_path(n: Union[str, OpenMaya.MObject]) -> OpenMaya.MDagPath:
         raise TypeError(f"Argument need to be str or MObject not {type(n)} !")
 
 
-def name_of(node: Union[OpenMaya.MObject, OpenMaya.MDagPath],
+def get_node(node: Union[str, OpenMaya.MObject, OpenMaya.MDagPath]) -> OpenMaya.MDagPath:
+    if isinstance(node, (str, OpenMaya.MObject)):
+        if isinstance(node, str):
+            node = get_object(node)
+        if not node.hasFn(OpenMaya.MFn.kDagNode):
+            return node
+        return get_path(node)
+    elif isinstance(node, OpenMaya.MDagPath):
+        return node
+    else:
+        raise RuntimeError(f"Argument must be a str, MObject or MDagPath not {type(node)} !")
+
+
+def name(node: Union[OpenMaya.MObject, OpenMaya.MDagPath],
             full: bool = True, namespace: bool = True):
     if isinstance(node, OpenMaya.MDagPath):
         return node.fullPathName()
@@ -66,7 +78,7 @@ def name_of(node: Union[OpenMaya.MObject, OpenMaya.MDagPath],
         raise TypeError(f"Argument must be a MObject or MDagPath not {type(node)}")
 
 
-def dependency_iterator_from(node: _maya_node, mfn_type: int,
+def dependency_iterator(node: _maya_node, mfn_type: int,
                              direction: int = OpenMaya.MItDependencyGraph.kUpstream,
                              traversal: int = OpenMaya.MItDependencyGraph.kDepthFirst,
                              level: int = OpenMaya.MItDependencyGraph.kNodeLevel) -> OpenMaya.MItDependencyGraph:

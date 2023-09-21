@@ -3,7 +3,7 @@ from typing import Union
 
 from maya import cmds, OpenMaya, OpenMayaAnim
 
-from fdda import utils as maya_utils
+from fdda.core import api_utils
 
 
 class Deformer(object):
@@ -17,12 +17,10 @@ class Deformer(object):
             self.__get(node)
 
     def __str__(self) -> str:
-        return repr(self)
-
-    def __repr__(self):
-        return "{0}(Deformer: {1}, Shape: {2})".format(self.__class__.__name__,
-                                                       self.deformer_name,
-                                                       self.shape_name)
+        return self.__repr__
+    
+    def __repr__(self) -> str:
+        return f"FDDA(class: {self.__class__.__name__})"
 
     @property
     def object(self) -> OpenMaya.MObject:
@@ -35,22 +33,22 @@ class Deformer(object):
     def __get_shape(self):
         output_geom = self.outputs_geometry()
         if output_geom.length() == 0:
-            raise RuntimeError(f"No output shape found on {maya_utils.name_of(self.object)}")
+            raise RuntimeError(f"No output shape found on {api_utils.name(self.object)}")
         elif output_geom.length() > 1:
-            raise RuntimeError(f"Multi shape found on {maya_utils.name_of(self.object)}")
+            raise RuntimeError(f"Multi shape found on {api_utils.name(self.object)}")
 
         return self.outputs_geometry()[0]
 
     @property
     def deformer_name(self) -> str:
-        return maya_utils.name_of(self.object) if self.object else ""
+        return api_utils.name(self.object) if self.object else ""
     
     def shape_name(self) -> str:
-        return maya_utils.name_of(self.shape) if self.shape else ""
+        return api_utils.name(self.shape) if self.shape else ""
 
     def __get(self, node):
         if isinstance(node, str):
-            node = maya_utils.get_object(node)
+            node = api_utils.get_object(node)
 
         self._object = node
         self.mfn = OpenMayaAnim.MFnGeometryFilter(node)
@@ -80,7 +78,7 @@ class Deformer(object):
     @classmethod
     def is_deformer(cls, node: OpenMaya.MObject):
         if isinstance(node, str):
-            node = maya_utils.get_object(node)
+            node = api_utils.get_object(node)
 
         return node.hasFn(OpenMaya.MFn.kGeometryFilt)
 
@@ -88,7 +86,7 @@ class Deformer(object):
     def _find(cls, node: Union[str, OpenMaya.MObject, OpenMaya.MDagPath],
               mfn_type: int) -> Union[OpenMaya.MObject, OpenMaya.MObjectArray, None]:
         if isinstance(node, str):
-            node = maya_utils.get_object(node)
+            node = api_utils.get_object(node)
         # If node is transform, retrieve shape
         node_to_parse = node
         if node.hasFn(OpenMaya.MFn.kTransform):
@@ -96,13 +94,13 @@ class Deformer(object):
             for i in range(mfn_node.childCount()):
                 child = mfn_node.child(i)
                 if child.hasFn(OpenMaya.MFn.kShape):
-                    child_name = maya_utils.name_of(child)
+                    child_name = api_utils.name(child)
                     if cmds.getAttr(f"{child_name}.intermediateObject"):
                         continue
                     node_to_parse = child
                     break
         # Parse graph
-        iterator = maya_utils.dependency_iterator_from(node_to_parse, mfn_type)
+        iterator = api_utils.dependency_iterator(node_to_parse, mfn_type)
         output = OpenMaya.MObjectArray()
         while not iterator.isDone():
             output.append(iterator.currentItem())

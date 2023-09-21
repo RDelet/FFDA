@@ -3,9 +3,10 @@ from typing import Union
 
 from maya import cmds, OpenMaya, OpenMayaAnim
 
-from fdda import utils as maya_utils
-from fdda.deformer import Deformer
-from fdda.logger import log
+from fdda.core.logger import log
+from fdda.core import api_utils
+from fdda.core.deformer import Deformer
+from fdda.core import constant as cst
 
 
 class Skin(Deformer):
@@ -22,6 +23,14 @@ class Skin(Deformer):
     kWeightDistribution = 'weightDistribution'
     kMaxInfluences = "maxInfluences"
     kMaintainMaxInfluences = "maintainMaxInfluences"
+
+    # Rotation limits
+    kRotateMinX = OpenMaya.MFnTransform.kRotateMinX
+    kRotateMaxX = OpenMaya.MFnTransform.kRotateMaxX
+    kRotateMinY = OpenMaya.MFnTransform.kRotateMinY
+    kRotateMaxY = OpenMaya.MFnTransform.kRotateMaxY
+    kRotateMinZ = OpenMaya.MFnTransform.kRotateMinZ
+    kRotateMaxZ = OpenMaya.MFnTransform.kRotateMaxZ
 
     def __init__(self, node: Union[str, OpenMaya.MObject] = None, weights: bool = True):
         super(Skin, self).__init__(node=node)
@@ -69,43 +78,50 @@ class Skin(Deformer):
     def __get_influences(self):
         self.influences_ids = list()
         self.influences_names = list()
+        self.influences_ranges = list()
+        self.influences_len = None
 
         try:
             influences = OpenMaya.MDagPathArray()
             influences_count = self.mfn.influenceObjects(influences)
+            self.influences_len = OpenMaya.MScriptUtil(influences.length())
+
             for i in range(influences_count):
                 dp_node = influences[i]
                 if dp_node.fullPathName() in self.influences_names:
                     continue
                 self.influences_ids.append(self.mfn.indexForInfluenceObject(dp_node))
                 self.influences_names.append(dp_node.fullPathName())
+                self.influences_ranges.append(self.__get_rotation_limits(dp_node))
         except Exception as e:
             log.debug(e)
+    
+    @classmethod
+    def __get_rotation_limits(cls, node):
+        mfn = OpenMaya.MFnTransform(node)
+        return [[mfn.limitValue(cls.kRotateMinX), mfn.limitValue(cls.kRotateMaxX)],
+                [mfn.limitValue(cls.kRotateMinY), mfn.limitValue(cls.kRotateMaxY)],
+                [mfn.limitValue(cls.kRotateMinZ), mfn.limitValue(cls.kRotateMaxZ)]]
 
     def __get_weights(self):
         component = self.__get_shape_component()
-        # influences_ids = OpenMaya.MIntArray(self.influence_count())
-        # [influences_ids.set(inf_id, i) for i, inf_id in enumerate(self._influences_ids)]
-        # ToDo: Understand why with MIntArray.set maya crash
-        ids = OpenMaya.MIntArray()
-        for inf_id in self.influences_ids:
-            ids.append(inf_id)
-
+        inf_count_ptr = self.influences_len.asUintPtr()
         self.weights = OpenMaya.MDoubleArray()
-        self.mfn.getWeights(maya_utils.get_path(self.shape), component, ids, self.weights)
+        shape_path = api_utils.get_path(self.shape)
+        self.mfn.getWeights(shape_path, component, self.weights, inf_count_ptr)
 
     def set_weights(self, weights: Union[list, tuple, OpenMaya.MDoubleArray] = None) -> OpenMaya.MDoubleArray:
-        """!@Brief Set SkinCluster weight."""
         if not self.object:
             raise Exception("No SkinCluster set !")
+
+        component = self.__get_shape_component()
 
         if isinstance(weights, (list, tuple)):
             tmp = OpenMaya.MDoubleArray()
             for w in weights:
                 tmp.append(w)
             weights = tmp
-
-        component = self.__get_shape_component()
+        
         if weights is not None:
             self.weights = weights
 
@@ -114,7 +130,8 @@ class Skin(Deformer):
             influence_ids.append(inf_id)
 
         old_weights = OpenMaya.MDoubleArray()
-        self.mfn.setWeights(maya_utils.get_path(self.shape), component, influence_ids, self.weights, False, old_weights)
+        shape_path = api_utils.get_path(self.shape)
+        self.mfn.setWeights(shape_path, component, influence_ids, self.weights, False, old_weights)
 
         return old_weights
     
@@ -132,5 +149,12 @@ class Skin(Deformer):
         return component
 
     @classmethod
-    def find(cls, mo_node) -> OpenMaya.MObject:
-        return Deformer._find(mo_node, cls.kApiType)
+    def find(cls, node: cst.kdepType) -> "Skin":
+        if isinstance(node, str):
+            node = api_utils.get_object(node)
+
+        skin_node = Deformer._find(node, cls.kApiType)
+        if not node:
+            raise RuntimeError(f"No skin cluster found on {api_utils.name(node)} !")
+
+        return cls(skin_node)
