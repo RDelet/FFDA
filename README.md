@@ -1,5 +1,5 @@
 # FFDA
-[Fast and Deep Deformation Approximations]([https://www.google.com](http://graphics.berkeley.edu/papers/Bailey-FDD-2018-08/index.html)http://graphics.berkeley.edu/papers/Bailey-FDD-2018-08/index.html).
+[Fast and Deep Deformation Approximations](http://graphics.berkeley.edu/papers/Bailey-FDD-2018-08/index.html)
 
 # Authors
 - [Rémi Deletrain](https://fr.linkedin.com/in/r%C3%A9mi-deletrain-3b296028)
