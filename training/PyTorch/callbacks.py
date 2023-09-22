@@ -10,7 +10,7 @@ class EarlyStop:
         self.min_validation_loss = torch.inf
     
     def __str__(self) -> str:
-        return self.__repr__
+        return self.__repr__()
     
     def __repr__(self) -> str:
         return f"FDDA(class: {self.__class__.__name__}, module: Pytorch)"

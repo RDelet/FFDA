@@ -1,11 +1,22 @@
 import math
-from typing import Union, Optional
+
+from typing import Union
 
 from maya import cmds, OpenMaya, OpenMayaAnim
 
+from fdda.maya.core import constant as cst
+
 
 _msl = OpenMaya.MSelectionList()
-_maya_node = Union[str, OpenMaya.MObject, OpenMaya.MDagPath]
+
+kRotateMinX = OpenMaya.MFnTransform.kRotateMinX
+kRotateMinY = OpenMaya.MFnTransform.kRotateMinY
+kRotateMinZ = OpenMaya.MFnTransform.kRotateMinZ
+kRotateMaxX = OpenMaya.MFnTransform.kRotateMaxX
+kRotateMaxY = OpenMaya.MFnTransform.kRotateMaxY
+kRotateMaxZ = OpenMaya.MFnTransform.kRotateMaxZ
+kMinRotLimits = [kRotateMinX, kRotateMinY, kRotateMinZ]
+kMaxRotLimits = [kRotateMaxX, kRotateMaxY, kRotateMaxZ]
 
 
 def get_object(n: str) -> OpenMaya.MObject:
@@ -78,7 +89,7 @@ def name(node: Union[OpenMaya.MObject, OpenMaya.MDagPath],
         raise TypeError(f"Argument must be a MObject or MDagPath not {type(node)}")
 
 
-def dependency_iterator(node: _maya_node, mfn_type: int,
+def dependency_iterator(node: cst.kdagType, mfn_type: int,
                              direction: int = OpenMaya.MItDependencyGraph.kUpstream,
                              traversal: int = OpenMaya.MItDependencyGraph.kDepthFirst,
                              level: int = OpenMaya.MItDependencyGraph.kNodeLevel) -> OpenMaya.MItDependencyGraph:
@@ -90,7 +101,7 @@ def dependency_iterator(node: _maya_node, mfn_type: int,
     return OpenMaya.MItDependencyGraph(node, mfn_type, direction, traversal, level)
 
 
-def matrix_of(node: _maya_node,
+def matrix_of(node: cst.kdagType,
               exclusive: bool = False, inverse: bool = False, world: bool = True,
               time: OpenMaya.MTime = None) -> OpenMaya.MMatrix:
     if isinstance(node, (str, OpenMaya.MObject)):
@@ -109,6 +120,17 @@ def matrix_of(node: _maya_node,
         return mfn.transformation().asMatrixInverse() if inverse else mfn.transformation().asMatrix()
 
 
+def get_rotation_limits(node: cst.kdagType) -> list:
+    output = []
+    mfn = OpenMaya.MFnTransform(get_node(node))
+    for min_limit, max_limit in zip(kMinRotLimits, kMaxRotLimits):
+        min_value = mfn.limitValue(min_limit) if mfn.isLimited(min_limit) else -360
+        max_value = mfn.limitValue(max_limit) if mfn.isLimited(max_limit) else 360
+        output.append([math.degrees(min_value), math.degrees(max_value)])
+    
+    return output
+
+
 def array_from_matrix(matrix: OpenMaya.MMatrix) -> list:
     """!@Brief Transform maya matrix to float array."""
     if not isinstance(matrix, (OpenMaya.MMatrix, OpenMaya.MFloatMatrix)):
@@ -121,11 +143,11 @@ def get_current_time() -> OpenMaya.MTime:
 
 
 def start_frame() -> float:
-    return cmds.playbackOptions(query=True, min=True)
+    return cmds.playbackOptions(query=True, minTime=True)
 
 
 def end_frame() -> float:
-    return cmds.playbackOptions(query=True, max=True)
+    return cmds.playbackOptions(query=True, maxTime=True)
 
 
 def go_to_start_frame():
@@ -138,6 +160,13 @@ def time_line_range(start: float = None, end: float = None) -> range:
     return range(int(math.floor(start)), int(math.ceil(end)) + 1)
 
 
+def set_time_line(start: float = None, end: float = None):
+    cmds.playbackOptions(edit=True, animationStartTime=start)
+    cmds.playbackOptions(edit=True, minTime=start)
+    cmds.playbackOptions(edit=True, animationEndTime=end)
+    cmds.playbackOptions(edit=True, maxTime=end)
+
+
 def set_current_time(time: Union[int, float, OpenMaya.MTime]) -> OpenMaya.MTime:
     if isinstance(time, OpenMaya.MTime):
         time = time.value()
@@ -148,7 +177,7 @@ def set_current_time(time: Union[int, float, OpenMaya.MTime]) -> OpenMaya.MTime:
     return current_time
 
 
-def get_points(shape: _maya_node, world: bool = True, vertex_ids: list = None) -> OpenMaya.MPointArray:
+def get_points(shape: cst.kdagType, world: bool = True, vertex_ids: list = None) -> OpenMaya.MPointArray:
     if isinstance(shape, (str, OpenMaya.MObject)):
         shape = get_path(shape)
 

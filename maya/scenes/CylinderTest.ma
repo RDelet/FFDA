@@ -1,6 +1,6 @@
 //Maya ASCII 2022 scene
-//Name: CylinderTest.ma
-//Last modified: Thu, Sep 21, 2023 06:39:35 PM
+//Name: CylinderTest_bis.ma
+//Last modified: Fri, Sep 22, 2023 03:21:09 PM
 //Codeset: 1252
 requires maya "2022";
 requires "stereoCamera" "10.0";
@@ -11,17 +11,17 @@ fileInfo "product" "Maya 2022";
 fileInfo "version" "2022";
 fileInfo "cutIdentifier" "202205171752-c25c06f306";
 fileInfo "osv" "Windows 10 Enterprise v2009 (Build: 19044)";
-fileInfo "UUID" "108679FB-4479-9E52-6B9E-7BBD27B4B10C";
+fileInfo "UUID" "95ADE7AA-40ED-F2F9-8529-05A4EDDBBDCA";
 createNode transform -shared -name "persp";
 	rename -uuid "D913A6CE-415F-9BE2-9565-D5B1208FC596";
 	setAttr ".visibility" no;
-	setAttr ".translate" -type "double3" 5.8736211823526139 6.1148700972292147 9.9099700276068461 ;
-	setAttr ".rotate" -type "double3" -17.738352729616626 -338.99999999998062 8.5170880600972609e-16 ;
+	setAttr ".translate" -type "double3" 2.0287733216073045 3.8533769125881552 19.218637119607585 ;
+	setAttr ".rotate" -type "double3" -3.338352729617029 -366.59999999996222 5.0027712273576584e-17 ;
 createNode camera -shared -name "perspShape" -parent "persp";
 	rename -uuid "3AC59194-474F-39B9-D278-1EB3EB112607";
 	setAttr -keyable off ".visibility" no;
 	setAttr ".focalLength" 34.999999999999993;
-	setAttr ".centerOfInterest" 12.32598468258487;
+	setAttr ".centerOfInterest" 20.051860646638076;
 	setAttr ".imageName" -type "string" "persp";
 	setAttr ".depthName" -type "string" "persp_depth";
 	setAttr ".maskName" -type "string" "persp_mask";
@@ -109,11 +109,14 @@ createNode mesh -name "Cylinder_SRCShapeOrig" -parent "Cylinder_SRC";
 	setAttr ".intermediateObject" yes;
 	setAttr ".visibleInReflections" yes;
 	setAttr ".visibleInRefractions" yes;
+	setAttr ".uvPivot" -type "double2" 0.5 0.15000000596046448 ;
 	setAttr ".uvSet[0].uvSetName" -type "string" "map1";
 	setAttr ".currentUVSet" -type "string" "map1";
 	setAttr ".displayColorChannel" -type "string" "Ambient+Diffuse";
 	setAttr ".collisionOffsetVelocityMultiplier[0]"  0 1 1;
 	setAttr ".collisionDepthVelocityMultiplier[0]"  0 1 1;
+	setAttr -size 2 ".pnts[140:141]" -type "float3"  -0.074969575 0 -0.074452713 
+		0.10046493 0 0.041402753;
 createNode transform -name "JOINTS" -parent "ROOT";
 	rename -uuid "C6EEC47F-40B8-433F-569D-CE8B9BA9CC57";
 createNode joint -name "joint1" -parent "JOINTS";
@@ -162,12 +165,15 @@ createNode joint -name "joint3" -parent "joint2";
 	setAttr ".radius" 0.55172413793103448;
 createNode joint -name "joint4" -parent "joint3";
 	rename -uuid "F8823AC0-42FE-E202-CCB0-FB95CB863B58";
+	addAttr -cachedInternally true -shortName "liw" -longName "lockInfluenceWeights" 
+		-minValue 0 -maxValue 1 -attributeType "bool";
 	setAttr ".useObjectColor" 1;
 	setAttr ".objectColor" 3;
 	setAttr ".translate" -type "double3" 2 0 0 ;
 	setAttr ".minRotLimit" -type "double3" -360 -360 -360 ;
 	setAttr ".maxRotLimit" -type "double3" 360 360 360 ;
 	setAttr ".jointOrient" -type "double3" 0 0 -90 ;
+	setAttr ".bindPose" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 6 0 1;
 	setAttr ".radius" 0.55172413793103448;
 createNode transform -name "FDDA";
 	rename -uuid "A901CE63-4FFA-1E3D-D00D-6FBCF500A13D";
@@ -221,6 +227,7 @@ createNode mesh -name "Cylinder_DSTShapeOrig" -parent "Cylinder_DST";
 	setAttr ".componentTags[8].componentTagContents" -type "componentList" 1 "f[140:159]";
 	setAttr ".componentTags[9].componentTagName" -type "string" "topRing";
 	setAttr ".componentTags[9].componentTagContents" -type "componentList" 1 "e[120:139]";
+	setAttr ".uvPivot" -type "double2" 0.5 0.84062498807907104 ;
 	setAttr ".uvSet[0].uvSetName" -type "string" "map1";
 	setAttr -size 189 ".uvSet[0].uvSetPoints[0:188]" -type "float2" 0.64860266
 		 0.10796607 0.62640899 0.064408496 0.59184152 0.029841021 0.54828393 0.0076473355
@@ -266,6 +273,8 @@ createNode mesh -name "Cylinder_DSTShapeOrig" -parent "Cylinder_DST";
 	setAttr ".displayColorChannel" -type "string" "Ambient+Diffuse";
 	setAttr ".collisionOffsetVelocityMultiplier[0]"  0 1 1;
 	setAttr ".collisionDepthVelocityMultiplier[0]"  0 1 1;
+	setAttr -size 2 ".pnts[140:141]" -type "float3"  -0.074969575 0 -0.074452706 
+		0.10046494 0 0.041402739;
 	setAttr -size 142 ".vrts[0:141]"  0.95105714 -3 -0.30901718 0.80901754 -3 -0.5877856
 		 0.5877856 -3 -0.80901748 0.30901715 -3 -0.95105702 8.5404744e-18 -3 -1.000000476837
 		 -0.30901715 -3 -0.95105696 -0.58778548 -3 -0.8090173 -0.80901724 -3 -0.58778542 -0.95105678 -3 -0.30901706
@@ -666,19 +675,21 @@ createNode mesh -name "Cylinder_DSTShapeOrig" -parent "Cylinder_DST";
 	setAttr ".holeFaceData" -type "dataPolyComponent" Index_Data Face 0 ;
 	setAttr ".vertexColorSource" 2;
 createNode lightLinker -shared -name "lightLinker1";
-	rename -uuid "024A7028-4F2A-3815-8987-7BA122403FEF";
+	rename -uuid "B30825D0-40EE-0CBA-1DDB-118CA8C1001C";
 	setAttr -size 3 ".link";
 	setAttr -size 3 ".shadowLink";
 createNode shapeEditorManager -name "shapeEditorManager";
-	rename -uuid "4300C23B-4269-AF74-918F-199716FF919A";
+	rename -uuid "5C46140F-4600-98C2-B37C-4AA5F6B622A9";
 createNode poseInterpolatorManager -name "poseInterpolatorManager";
-	rename -uuid "04576F16-4738-3E52-8D74-459E12944FA9";
+	rename -uuid "C1263F98-4E07-173B-729A-DC9183F79425";
 createNode displayLayerManager -name "layerManager";
-	rename -uuid "70D94189-4678-A3FE-AC70-349FAFDE4226";
+	rename -uuid "4504DB18-4F73-FBE6-00CD-259363FCAE95";
+	setAttr -size 2 ".displayLayerId[1:2]"  1 2;
+	setAttr -size 3 ".displayLayerId";
 createNode displayLayer -name "defaultLayer";
 	rename -uuid "B0B57F93-452D-2502-78E9-2B8D332D397D";
 createNode renderLayerManager -name "renderLayerManager";
-	rename -uuid "758EBB3E-4BBE-0947-69FF-A8AA4B32930C";
+	rename -uuid "45E2E3CB-4D76-3F4F-F1C6-D48FE1CE9D8F";
 createNode renderLayer -name "defaultRenderLayer";
 	rename -uuid "9EF1CBFA-4821-263B-2CEE-A091E0255C31";
 	setAttr ".global" yes;
@@ -701,6 +712,168 @@ createNode polyCylinder -name "polyCylinder1";
 	setAttr ".subdivisionsHeight" 6;
 	setAttr ".subdivisionsCaps" 1;
 	setAttr ".createUVs" 3;
+createNode dagPose -name "bindPose1";
+	rename -uuid "2CE88AA4-4287-E4D5-D52E-47ACAF7FCA08";
+	setAttr -size 6 ".worldMatrix";
+	setAttr ".worldMatrix[0]" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+	setAttr ".worldMatrix[1]" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
+	setAttr -size 8 ".xformMatrix";
+	setAttr ".xformMatrix[0]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
+	setAttr ".xformMatrix[1]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
+	setAttr ".xformMatrix[2]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0.70710678118654757 0.70710678118654757 1 1 1 yes;
+	setAttr ".xformMatrix[3]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
+	setAttr ".xformMatrix[4]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
+	setAttr ".xformMatrix[6]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -0.70710678118654757 0.70710678118654757 1 1 1 yes;
+	setAttr ".xformMatrix[7]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -0.70710678118654757 0.70710678118654757 1 1 1 yes;
+	setAttr ".xformMatrix[8]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
+		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 -0.70710678118654757 0.70710678118654757 1 1 1 yes;
+	setAttr -size 6 ".members";
+	setAttr -size 8 ".parents";
+	setAttr -size 2 ".global[0:1]" yes yes;
+	setAttr ".bindPose" yes;
+createNode script -name "sceneConfigurationScriptNode";
+	rename -uuid "159C945F-42E8-158C-9D2E-338A41CD6EDE";
+	setAttr ".before" -type "string" "playbackOptions -min 0 -max 40 -ast 0 -aet 40 ";
+	setAttr ".scriptType" 6;
+createNode nodeGraphEditorInfo -name "MayaNodeEditorSavedTabsInfo";
+	rename -uuid "251F3452-41C6-5A55-307F-A68965CCF688";
+	setAttr ".tabGraphInfo[0].tabName" -type "string" "Untitled_1";
+	setAttr ".tabGraphInfo[0].viewRectLow" -type "double2" -499.68485982944719 -243.87254233917042 ;
+	setAttr ".tabGraphInfo[0].viewRectHigh" -type "double2" 481.82771768188337 271.25349363210154 ;
+	setAttr -size 3 ".tabGraphInfo[0].nodeInfo";
+	setAttr ".tabGraphInfo[0].nodeInfo[0].positionX" 47.142856597900391;
+	setAttr ".tabGraphInfo[0].nodeInfo[0].positionY" 170;
+	setAttr ".tabGraphInfo[0].nodeInfo[0].nodeVisualState" 18304;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].positionX" 47.142856597900391;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].positionY" 40;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].nodeVisualState" 18304;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].positionX" -260;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].positionY" 170;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].nodeVisualState" 18304;
+createNode shadingEngine -name "lambert1SG";
+	rename -uuid "261C1EA2-422B-03F7-AD6D-3BA0A5F9F38F";
+	setAttr ".isHistoricallyInteresting" 0;
+	setAttr -size 2 ".dagSetMembers";
+	setAttr ".renderableOnlySet" yes;
+createNode materialInfo -name "materialInfo1";
+	rename -uuid "50276A89-46BD-0A08-FC00-7FB47ADD0685";
+createNode nodeGraphEditorInfo -name "hyperShadePrimaryNodeEditorSavedTabsInfo";
+	rename -uuid "8A2817CF-4344-DD52-FB79-E6BDCF062204";
+	setAttr ".tabGraphInfo[0].tabName" -type "string" "Untitled_1";
+	setAttr ".tabGraphInfo[0].viewRectLow" -type "double2" -330.95236780151544 -323.80951094248991 ;
+	setAttr ".tabGraphInfo[0].viewRectHigh" -type "double2" 317.85713022663526 338.09522466054096 ;
+	setAttr -size 33 ".tabGraphInfo[0].nodeInfo";
+	setAttr ".tabGraphInfo[0].nodeInfo[0].positionX" -2435.71435546875;
+	setAttr ".tabGraphInfo[0].nodeInfo[0].positionY" 655.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[0].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].positionY" 464.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[1].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].positionY" 222.85714721679688;
+	setAttr ".tabGraphInfo[0].nodeInfo[2].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[3].positionX" 1601.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[3].positionY" 371.42855834960938;
+	setAttr ".tabGraphInfo[0].nodeInfo[3].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[4].positionX" 1601.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[4].positionY" 612.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[4].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[5].positionX" 1601.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[5].positionY" 187.14285278320312;
+	setAttr ".tabGraphInfo[0].nodeInfo[5].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[6].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[6].positionY" 705.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[6].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[7].positionX" 1601.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[7].positionY" 774.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[7].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[8].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[8].positionY" 70;
+	setAttr ".tabGraphInfo[0].nodeInfo[8].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[9].positionX" -2128.571533203125;
+	setAttr ".tabGraphInfo[0].nodeInfo[9].positionY" 585.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[9].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[10].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[10].positionY" -258.57144165039062;
+	setAttr ".tabGraphInfo[0].nodeInfo[10].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[11].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[11].positionY" -442.85714721679688;
+	setAttr ".tabGraphInfo[0].nodeInfo[11].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[12].positionX" 1250;
+	setAttr ".tabGraphInfo[0].nodeInfo[12].positionY" 170;
+	setAttr ".tabGraphInfo[0].nodeInfo[12].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[13].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[13].positionY" -82.857139587402344;
+	setAttr ".tabGraphInfo[0].nodeInfo[13].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[14].positionX" 2238.571533203125;
+	setAttr ".tabGraphInfo[0].nodeInfo[14].positionY" 762.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[14].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[15].positionX" 2238.571533203125;
+	setAttr ".tabGraphInfo[0].nodeInfo[15].positionY" 521.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[15].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[16].positionX" 942.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[16].positionY" 74.285713195800781;
+	setAttr ".tabGraphInfo[0].nodeInfo[16].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[17].positionX" 2238.571533203125;
+	setAttr ".tabGraphInfo[0].nodeInfo[17].positionY" 280;
+	setAttr ".tabGraphInfo[0].nodeInfo[17].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[18].positionX" 21.428571701049805;
+	setAttr ".tabGraphInfo[0].nodeInfo[18].positionY" 764.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[18].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[19].positionX" 635.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[19].positionY" 774.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[19].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[20].positionX" 328.57144165039062;
+	setAttr ".tabGraphInfo[0].nodeInfo[20].positionY" 684.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[20].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[21].positionX" -285.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[21].positionY" 674.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[21].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[22].positionX" -900;
+	setAttr ".tabGraphInfo[0].nodeInfo[22].positionY" 774.28570556640625;
+	setAttr ".tabGraphInfo[0].nodeInfo[22].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[23].positionX" -1207.142822265625;
+	setAttr ".tabGraphInfo[0].nodeInfo[23].positionY" 717.14288330078125;
+	setAttr ".tabGraphInfo[0].nodeInfo[23].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[24].positionX" -1514.2857666015625;
+	setAttr ".tabGraphInfo[0].nodeInfo[24].positionY" 725.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[24].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[25].positionX" 942.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[25].positionY" 797.14288330078125;
+	setAttr ".tabGraphInfo[0].nodeInfo[25].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[26].positionX" -1821.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[26].positionY" 650;
+	setAttr ".tabGraphInfo[0].nodeInfo[26].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[27].positionX" 1601.4285888671875;
+	setAttr ".tabGraphInfo[0].nodeInfo[27].positionY" -445.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[27].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[28].positionX" -592.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[28].positionY" 688.5714111328125;
+	setAttr ".tabGraphInfo[0].nodeInfo[28].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[29].positionX" 1922.857177734375;
+	setAttr ".tabGraphInfo[0].nodeInfo[29].positionY" -655.71429443359375;
+	setAttr ".tabGraphInfo[0].nodeInfo[29].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[30].positionX" 2238.571533203125;
+	setAttr ".tabGraphInfo[0].nodeInfo[30].positionY" -82.857139587402344;
+	setAttr ".tabGraphInfo[0].nodeInfo[30].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[31].positionX" 1250;
+	setAttr ".tabGraphInfo[0].nodeInfo[31].positionY" 522.85711669921875;
+	setAttr ".tabGraphInfo[0].nodeInfo[31].nodeVisualState" 1922;
+	setAttr ".tabGraphInfo[0].nodeInfo[32].positionX" -98.571426391601562;
+	setAttr ".tabGraphInfo[0].nodeInfo[32].positionY" 81.428573608398438;
+	setAttr ".tabGraphInfo[0].nodeInfo[32].nodeVisualState" 1923;
+createNode deltaMush -name "deltaMush1";
+	rename -uuid "8A069AA7-425A-6192-659F-0ABA804498AA";
+	setAttr ".smoothingIterations" 5;
+	setAttr ".smoothingStep" 0.60000002384185791;
+	setAttr ".inwardConstraint" 1;
 createNode skinCluster -name "skinCluster1";
 	rename -uuid "ADD18122-4B43-1BE2-EF8A-1DA88EE9CB2F";
 	setAttr -size 142 ".weightList";
@@ -860,321 +1033,279 @@ createNode skinCluster -name "skinCluster1";
 	setAttr ".useComponentsMatrix" yes;
 	setAttr -size 3 ".influenceColor";
 	setAttr -size 3 ".influenceColor";
-createNode dagPose -name "bindPose1";
-	rename -uuid "2CE88AA4-4287-E4D5-D52E-47ACAF7FCA08";
-	setAttr -size 5 ".worldMatrix";
-	setAttr ".worldMatrix[0]" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
-	setAttr ".worldMatrix[1]" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1;
-	setAttr -size 5 ".xformMatrix";
-	setAttr ".xformMatrix[0]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
-		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
-	setAttr ".xformMatrix[1]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
-		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
-	setAttr ".xformMatrix[2]" -type "matrix" "xform" 1 1 1 0 0 0 0 0 0 0 0 0 0 0
-		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0.70710678118654757 0.70710678118654757 1 1 1 yes;
-	setAttr ".xformMatrix[3]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
-		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
-	setAttr ".xformMatrix[4]" -type "matrix" "xform" 1 1 1 0 0 0 0 2 0 0 0 0 0 0
-		 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 1 1 1 yes;
-	setAttr -size 5 ".members";
-	setAttr -size 5 ".parents";
-	setAttr -size 5 ".global[0:4]" yes yes no no no;
-	setAttr ".bindPose" yes;
-createNode script -name "sceneConfigurationScriptNode";
-	rename -uuid "159C945F-42E8-158C-9D2E-338A41CD6EDE";
-	setAttr ".before" -type "string" "playbackOptions -min 0 -max 150 -ast 0 -aet 150 ";
-	setAttr ".scriptType" 6;
-createNode deltaMush -name "deltaMush1";
-	rename -uuid "8A069AA7-425A-6192-659F-0ABA804498AA";
-	setAttr ".smoothingIterations" 5;
-	setAttr ".smoothingStep" 0.60000002384185791;
-	setAttr ".inwardConstraint" 1;
-createNode nodeGraphEditorInfo -name "MayaNodeEditorSavedTabsInfo";
-	rename -uuid "251F3452-41C6-5A55-307F-A68965CCF688";
-	setAttr ".tabGraphInfo[0].tabName" -type "string" "Untitled_1";
-	setAttr ".tabGraphInfo[0].viewRectLow" -type "double2" -499.68485982944719 -243.87254233917042 ;
-	setAttr ".tabGraphInfo[0].viewRectHigh" -type "double2" 481.82771768188337 271.25349363210154 ;
-	setAttr -size 3 ".tabGraphInfo[0].nodeInfo";
-	setAttr ".tabGraphInfo[0].nodeInfo[0].positionX" 47.142856597900391;
-	setAttr ".tabGraphInfo[0].nodeInfo[0].positionY" 170;
-	setAttr ".tabGraphInfo[0].nodeInfo[0].nodeVisualState" 18304;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].positionX" 47.142856597900391;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].positionY" 40;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].nodeVisualState" 18304;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].positionX" -260;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].positionY" 170;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].nodeVisualState" 18304;
 createNode skinCluster -name "skinCluster2";
-	rename -uuid "38FDD45E-4726-E3C7-5E90-41A8A2FA5A48";
+	rename -uuid "5B4C84C1-41CE-C5B3-7CD2-098D84BAD9C0";
 	setAttr -size 142 ".weightList";
-	setAttr ".weightList[0:141].weights"
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 0 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		2 1 1 2 -1.5625535738844279e-16
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 1 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 2 1
-		1 0 1
-		1 2 1;
-	setAttr -size 3 ".bindPreMatrix";
+	setAttr ".weightList[0:135].weights"
+		4 0 0.99581973407469371 1 0.0041601713391968484 2 2.0094586109443044e-05 
+		3 -1.3037531124138191e-17
+		4 0 0.99615835965464616 1 0.0038254832262618775 2 1.6157119092005156e-05 
+		3 -7.9659001766293862e-17
+		4 0 0.99644658254416485 1 0.0035401442678105175 2 1.3273188024678485e-05 
+		3 -2.175519421727945e-17
+		4 0 0.99675976261230292 1 0.003229775363565373 2 1.0462024131626272e-05 
+		3 1.4887451080941583e-17
+		4 0 0.99697242990657986 1 0.0030185943326817635 2 8.9757607384249329e-06 
+		3 -3.5223018078622825e-17
+		4 0 0.99704093581664155 1 0.0029504847054373749 2 8.5794779211777986e-06 
+		3 -4.9873299934333204e-18
+		4 0 0.99703086428041265 1 0.0029603990028937589 2 8.7367166935934889e-06 
+		3 3.2539617701721202e-17
+		4 0 0.99702372537871298 1 0.0029675515569732511 2 8.7230643138151015e-06 
+		3 -4.1843427594362437e-17
+		4 0 0.99701992000122364 1 0.0029714113196944543 2 8.668679081824985e-06 
+		3 3.6618928375697912e-17
+		4 0 0.9969391053573633 1 0.0030517432801428468 2 9.1513624938149613e-06 
+		3 1.0286368111456223e-17
+		4 0 0.99671695285925899 1 0.0032723107491493607 2 1.073639159161487e-05 
+		3 2.7620050344068225e-17
+		4 0 0.99639766565515309 1 0.0035889003568392343 2 1.3433988007715197e-05 
+		3 -4.4269329955298753e-17
+		4 0 0.99610793701190892 1 0.0038756650404944701 2 1.6397947596620162e-05 
+		3 -3.8502729650391476e-17
+		4 0 0.99595282396180018 1 0.0040289899864347518 2 1.8186051765053776e-05 
+		3 2.3361380443510417e-17
+		4 0 0.99594560066718263 1 0.0040359548605995981 2 1.844447221789479e-05 
+		3 -1.0489656018797255e-17
+		4 0 0.99601423325327876 1 0.003967967580298915 2 1.7799166422401481e-05 
+		3 -1.4277079139150134e-16
+		4 0 0.99607587153133215 1 0.0039070575383713434 2 1.7070930296318933e-05 
+		3 3.1064086307604211e-17
+		4 0 0.9960844242174679 1 0.003898557528003695 2 1.7018254528533181e-05 
+		3 2.4992765899922199e-17
+		4 0 0.99603872123547554 1 0.0039436541863948375 2 1.762457812943518e-05 
+		3 1.460911605447382e-16
+		4 0 0.99598317448554341 1 0.0039984980801391033 2 1.8327434317641241e-05 
+		3 -6.0157973979894919e-17
+		4 0 0.98973895263886824 1 0.010261047361131722 2 -6.4337549405920913e-21 
+		3 -4.2351647362715017e-22
+		3 0 0.99078931173327001 1 0.0092106882667300667 2 -4.4233161208586165e-22
+		3 0 0.99230655594163764 1 0.0076934440583623651 2 -3.6629642651241191e-23
+		3 0 0.99381266554530445 1 0.006187334454695579 2 7.858699543916929e-21
+		4 0 0.99495862202203145 1 0.0050413779779685487 2 -9.8530311002242497e-21 
+		3 3.3881317890172014e-21
+		2 0 0.99556775711946099 1 0.0044322428805390682
+		3 0 0.99576355822260942 1 0.0042364417773906073 2 -1.2888871075538859e-21
+		2 0 0.99575905880537363 1 0.0042409411946263027
+		3 0 0.99555734791513695 1 0.0044426520848630064 3 3.3881317890172014e-21
+		3 0 0.99494852832197378 1 0.0050514716780262012 2 -8.2856697319192245e-21
+		3 0 0.99380244364867332 1 0.0061975563513267254 2 3.1658464742264908e-22
+		3 0 0.9922909684850626 1 0.0077090315149373895 2 1.529377252447907e-20
+		3 0 0.99077160830822419 1 0.009228391691775922 2 -2.2326121754293079e-21
+		3 0 0.98951112845842459 1 0.010488871541575389 2 5.1423093484173486e-26
+		4 0 0.98852566860835711 1 0.01147320994929241 2 1.1214423501143067e-06 
+		3 4.0097862096660775e-16
+		4 0 0.98776885255070457 1 0.012223210393114147 2 7.9370561814935551e-06 
+		3 -1.6737709850923876e-16
+		4 0 0.98732156595980747 1 0.012668229943122921 2 1.0204097069522653e-05 
+		3 9.7673063213787881e-17
+		4 0 0.98731109528120342 1 0.01267865485125292 2 1.0249867543202739e-05 
+		3 4.4604077376053652e-16
+		4 0 0.98774838806579157 1 0.01224369322570279 2 7.9187085059778325e-06 
+		3 -3.4979072589813587e-16
+		4 0 0.98851465935071015 1 0.011484064506099583 2 1.2761431900816782e-06 
+		3 2.0453473983939041e-16
+		3 0 0.71517202931037982 1 0.28482797068962018 2 9.7134691814642991e-20
+		3 0 0.71436119831679823 1 0.28563880168320177 2 -2.0313386672379334e-19
+		3 0 0.71362466658105128 1 0.28637533341894866 2 -5.9340102207165268e-20
+		3 0 0.71288713985559182 1 0.28711286014440812 2 4.6425025454562898e-20
+		3 0 0.71249041065444785 1 0.28750958934555215 2 6.7002576890809338e-20
+		3 0 0.71253957423178083 1 0.28746042576821917 2 7.7882257532639523e-21
+		2 0 0.71275962631884693 1 0.28724037368115313
+		3 0 0.71276106065991762 1 0.28723893934008221 2 -4.3904924299110435e-20
+		3 0 0.7125410475306978 1 0.28745895246930242 2 4.2123823250069137e-21
+		2 0 0.71248539076041451 1 0.28751460923958544
+		3 0 0.71287148060285255 1 0.2871285193971474 2 4.6996195843330763e-20
+		3 0 0.71360092730582758 1 0.28639907269417247 2 -1.5661136816616705e-20
+		2 0 0.71433702683262745 1 0.2856629731673726
+		3 0 0.71483873014798927 1 0.28516126985201079 2 1.6119878081848395e-20
+		3 0 0.71509768333592294 1 0.28490231666407706 2 1.2956698386915965e-20
+		3 0 0.71519372586414898 1 0.28480627413585091 2 1.9847548885515024e-20
+		3 0 0.71521431229091126 1 0.28478568770908874 2 -1.4036279363591347e-20
+		3 0 0.71521343163451023 1 0.28478656836548982 2 -4.0518229592557462e-20
+		3 0 0.71519376474982177 1 0.28480623525017817 2 -4.6960842432620641e-20
+		3 0 0.71510415828806295 1 0.28489584171193705 2 -3.2129301265848763e-20
+		4 0 0.10471588156410593 1 0.89106879478152268 2 0.004215323654375081 
+		3 -3.62383734131555e-15
+		4 0 0.10198330596965988 1 0.89488840806134029 2 0.0031282859689950983 
+		3 4.7115089607530081e-15
+		4 0 0.098542280660813136 1 0.89965061437773386 2 0.0018071049614554948 
+		3 -2.4771851236948805e-15
+		4 0 0.095220467958688687 1 0.90427060644423263 2 0.0005089255970799711 
+		3 -1.1597710639077441e-15
+		3 0 0.093013208889509702 1 0.9069867911104903 2 7.1669337234215308e-21
+		3 0 0.09225228734096573 1 0.9077477126590342 2 -2.9295223979356247e-20
+		2 0 0.09230115813053423 1 0.90769884186946559
+		3 0 0.092301276216528477 1 0.90769872378347149 3 2.7105054312137611e-20
+		3 0 0.092252563330453577 1 0.90774743666954627 2 -4.0940551247324633e-21
+		3 0 0.093013405227952928 1 0.90698659477204713 2 4.1489746156807162e-21
+		4 0 0.095220494805318495 1 0.90427573414120976 2 0.00050377105347136338 
+		3 3.4053434985054087e-16
+		4 0 0.098542263626486604 1 0.89965616615952337 2 0.0018015702139924114 
+		3 -2.3630457399864691e-15
+		4 0 0.10198324240338839 1 0.89489361811286572 2 0.0031231394837455263 
+		3 3.5079361290768496e-16
+		4 0 0.10471611893399668 1 0.8910730136730588 2 0.004210867392945448 
+		3 -9.813384913709422e-16
+		4 0 0.10656151216631266 1 0.88839309070743655 2 0.0050453971262496584 
+		3 1.0278778696248825e-15
+		4 0 0.10768445772046377 1 0.88665571352889994 2 0.0056598287506362862 
+		3 2.3635607360183997e-17
+		4 0 0.10822495270544122 1 0.88576940940258109 2 0.0060056378919765858 
+		3 1.0651202142497596e-15
+		4 0 0.10822510551062432 1 0.88576845101172286 2 0.0060064434776553877 
+		3 -2.6242029382839149e-15
+		4 0 0.10768476011284947 1 0.88665304665898426 2 0.0056621932281621188 
+		3 4.2162454083616296e-15
+		4 0 0.10656173271322568 1 0.88838934824487648 2 0.0050489190419005115 
+		3 -2.6628005356243989e-15
+		4 0 0.0091874907646665727 1 0.71237551782206887 2 0.27843699141326117 
+		3 3.4139358007223564e-15
+		4 0 0.0085591333237553299 1 0.71330315880440476 2 0.27813770787185194 
+		3 -1.204505245544496e-14
+		4 0 0.0076594264406608051 1 0.71407782574236578 2 0.2782627478169582 
+		3 1.5279444376403717e-14
+		4 0 0.0068426052034682742 1 0.71476750705381054 2 0.27838988774272755 
+		3 -6.3777108594287313e-15
+		4 0 0.006372207641324487 1 0.71527149538225498 2 0.27835629697641628 
+		3 4.1845867049250529e-15
+		4 0 0.0062822570103879304 1 0.71558223502506024 2 0.27813550796454556 
+		3 6.1951312135821723e-15
+		4 0 0.0063565095926212591 1 0.7157213698468945 2 0.27792212056049698 
+		3 -1.2720727249337926e-14
+		4 0 0.0063580505787065016 1 0.71573232854645397 2 0.27790962087482579 
+		3 1.3589173189498815e-14
+		4 0 0.0062855909798800267 1 0.71561969520301649 2 0.278094713817093 
+		3 1.0528036775703242e-14
+		4 0 0.0063740673706817004 1 0.71534085239410039 2 0.27828508023521592 
+		3 2.0581477602928111e-15
+		4 0 0.0068412002670297234 1 0.714864397437316 2 0.27829440229565661 
+		3 -2.4028088546623749e-15
+		4 0 0.0076558142257552014 1 0.71418623401235304 2 0.27815795176190278 
+		3 -1.0915964313018556e-14
+		4 0 0.0085560340949485617 1 0.71340407453841015 2 0.2780398913666432 
+		3 -1.9725974326201268e-15
+		4 0 0.009262316863470307 1 0.71269062807042161 2 0.27804705506610689 
+		3 1.2353399553299838e-15
+		4 0 0.0096638880169461882 1 0.71217680152991858 2 0.27815931045315434 
+		3 -1.9094819584015987e-14
+		4 0 0.0098222493643608227 1 0.71189854663026764 2 0.27827920400536782 
+		3 3.8096695936795655e-15
+		4 0 0.0098595641717236851 1 0.71179337434409218 2 0.27834706148418725 
+		3 -3.07783312725185e-15
+		4 0 0.0098589417243032263 1 0.71178605544131557 2 0.27835500283437298 
+		3 8.3344789403305697e-15
+		4 0 0.0098207695411773981 1 0.71187293838737353 2 0.27830629207144558 
+		3 3.5527136788005009e-15
+		4 0 0.0096627583148640658 1 0.71212627188768829 2 0.27821096979743437 
+		3 1.3214256078253328e-14
+		4 0 0.00086404364981123693 1 0.11540318556331612 2 0.88373277078689805 
+		3 -2.5458801733435621e-14
+		4 0 0.00080497903252190644 1 0.11524687933114026 2 0.8839481416363475 
+		3 -9.6207763977673721e-15
+		4 0 0.00063524035186532314 1 0.11119535429589938 2 0.88816940535220512 
+		3 3.015599922551182e-14
+		4 0 0.00048676960639421128 1 0.10723058120627431 2 0.89228264918732936 
+		3 2.1662901507346621e-15
+		4 0 0.00040882017948304177 1 0.10467595241209975 2 0.89491522740842389 
+		3 -6.7346302146109593e-15
+		4 0 0.00040253808850965292 1 0.10399757301792106 2 0.89559988889357067 
+		3 -1.3947176746853529e-15
+		4 0 0.00042314321952293885 1 0.1042958556778808 2 0.89528100110260633 
+		3 -9.8532293435482643e-15
+		4 0 0.00042463476814694391 1 0.10436815103471944 2 0.89520721419711657 
+		3 1.704886232190006e-14
+		4 0 0.00040547020108555387 1 0.10417385773879613 2 0.89542067206010956 
+		3 8.8680148294106864e-15
+		4 0 0.00041017578917557144 1 0.10486405143696628 2 0.89472577277389431 
+		3 -3.6257130110739499e-14
+		4 0 0.00048469606055657159 1 0.10736248348458427 2 0.89215282045484279 
+		3 1.6512846320350383e-14
+		4 0 0.00063090876796336143 1 0.11127917613355927 2 0.88808991509845536 
+		3 2.2111435946103875e-14
+		4 0 0.00080162184787619544 1 0.11533632050509439 2 0.88386205764700987 
+		3 1.9451888016996932e-14
+		4 0 0.00093680294839332647 1 0.11849531258367713 2 0.88056788446794998 
+		3 -2.045802763306348e-14
+		4 0 0.00100584585775641 1 0.12054587965577598 2 0.87844827448648755 
+		3 -1.9853042820816569e-14
+		4 0 0.0010201181656514793 1 0.12174113268682286 2 0.87723874914751399 
+		3 1.1561498286516425e-14
+		4 0 0.0010133062724724004 1 0.12229016595659284 2 0.87669652777093843 
+		3 -3.5704945944292632e-15
+		4 0 0.0010123682398799987 1 0.12225546386539542 2 0.87673216789468034 
+		3 4.4294429235591792e-14
+		4 0 0.0010179598228297669 1 0.12164416180664964 2 0.87733787837052579 
+		3 -5.2093745983583517e-15
+		4 0 0.0010040900659411306 1 0.12041406112130713 2 0.87858184881276513 
+		3 -1.3440637491868301e-14
+		4 0 0.00031143407409579349 1 0.032892594696718 2 0.96679597122895067 
+		3 2.3559019318719621e-13
+		4 0 0.00025745534718285394 1 0.029636389956034643 2 0.97010615469676276 
+		3 1.9701471357103095e-14
+		4 0 0.00020635770055934231 1 0.02713873408161406 2 0.97265490821767797 
+		3 1.4859012457957288e-13
+		4 0 0.00016169655689470889 1 0.02486724571908739 2 0.97497105772394421 
+		3 7.3586102489198169e-14
+		4 0 0.00013431443413598529 1 0.023354676468348719 2 0.97651100909746025 
+		3 5.5062291531848828e-14
+		4 0 0.00012458170116509868 1 0.022708587665122744 2 0.97716683063373899 
+		3 -2.6757242255204261e-14
+		4 0 0.000123968705560005 1 0.022584892515526048 2 0.97729113877890628 
+		3 7.5859457604465774e-15
+		4 0 0.00012425311154513349 1 0.022607565337336835 2 0.97726818155112272 
+		3 -4.5284956340374549e-15
+		4 0 0.00012526069790465811 1 0.022783505965097119 2 0.97709123333695436 
+		3 4.3725873616340394e-14
+		4 0 0.00013568199137512437 1 0.023488047693331182 2 0.97637627031528351 
+		3 1.0275634509948617e-14
+		4 0 0.00016362917492529738 1 0.025043409139926743 2 0.97479296168518725 
+		3 -3.9402509033337196e-14
+		4 0 0.00020833077102955753 1 0.027319810458584576 2 0.97247185877037134 
+		3 1.4447644469672838e-14
+		4 0 0.00025908102299922382 1 0.029778131390838049 2 0.96996278758615462 
+		3 8.0677652058991356e-15
+		4 0 0.00030210587279602864 1 0.031859158100648689 2 0.96783873602656723 
+		3 -1.1922754450388595e-14
+		4 0 0.00032872108518917806 1 0.033309679793123027 2 0.96636159912167896 
+		3 8.8631359196345016e-15
+		4 0 0.00034009972826904344 1 0.034179976334993915 2 0.96547992393674142 
+		3 -4.3667326699026177e-15;
+	setAttr ".weightList[136:141].weights"
+		4 0 0.00034296947834447231 1 0.034598964218205672 2 0.9650580663035031 
+		3 -5.3295692512000947e-14
+		4 0 0.00034313742856601376 1 0.034624006965417307 2 0.96503285560589369 
+		3 1.2296912620113343e-13
+		4 0 0.00034024578618522351 1 0.034227211881800473 2 0.9654325423318566 
+		3 1.5776247495880025e-13
+		4 0 0.00032834181894767075 1 0.033320093087973339 2 0.96635156509293685 
+		3 1.4206561274598961e-13
+		2 0 0.99999999999999978 1 5.222464424595126e-20
+		4 0 5.0386572987813936e-05 1 0.0080470394377575652 2 0.99190257399591775 
+		3 -6.6630438146086934e-12;
+	setAttr -size 4 ".bindPreMatrix";
 	setAttr ".bindPreMatrix[0]" -type "matrix" 0 -1 0 0 1 0 0 0 0 0 1 0 0 0 0 1;
 	setAttr ".bindPreMatrix[1]" -type "matrix" 0 -1 0 0 1 0 0 0 0 0 1 0 -2 0 0 1;
 	setAttr ".bindPreMatrix[2]" -type "matrix" 0 -1 0 0 1 0 0 0 0 0 1 0 -4 0 0 1;
+	setAttr ".bindPreMatrix[3]" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 -6 0 1;
 	setAttr ".geomMatrix" -type "matrix" 1 0 0 0 0 1 0 0 0 0 1 0 0 3 0 1;
-	setAttr -size 3 ".matrix";
-	setAttr -size 3 ".dropoff[0:2]"  4 4 4;
-	setAttr -size 3 ".lockWeights";
-	setAttr -size 3 ".lockWeights";
-	setAttr ".maintainMaxInfluences" yes;
+	setAttr -size 4 ".matrix";
+	setAttr -size 4 ".dropoff[0:3]"  4 4 4 4;
+	setAttr -size 4 ".lockWeights";
+	setAttr -size 4 ".lockWeights";
+	setAttr ".maxInfluences" 3;
+	setAttr ".bindMethod" 1;
 	setAttr ".useComponentsMatrix" yes;
-	setAttr -size 3 ".influenceColor";
-	setAttr -size 3 ".influenceColor";
-createNode shadingEngine -name "lambert1SG";
-	rename -uuid "261C1EA2-422B-03F7-AD6D-3BA0A5F9F38F";
-	setAttr ".isHistoricallyInteresting" 0;
-	setAttr -size 2 ".dagSetMembers";
-	setAttr ".renderableOnlySet" yes;
-createNode materialInfo -name "materialInfo1";
-	rename -uuid "50276A89-46BD-0A08-FC00-7FB47ADD0685";
-createNode nodeGraphEditorInfo -name "hyperShadePrimaryNodeEditorSavedTabsInfo";
-	rename -uuid "8A2817CF-4344-DD52-FB79-E6BDCF062204";
-	setAttr ".tabGraphInfo[0].tabName" -type "string" "Untitled_1";
-	setAttr ".tabGraphInfo[0].viewRectLow" -type "double2" -330.95236780151544 -323.80951094248991 ;
-	setAttr ".tabGraphInfo[0].viewRectHigh" -type "double2" 317.85713022663526 338.09522466054096 ;
-	setAttr -size 33 ".tabGraphInfo[0].nodeInfo";
-	setAttr ".tabGraphInfo[0].nodeInfo[0].positionX" -2435.71435546875;
-	setAttr ".tabGraphInfo[0].nodeInfo[0].positionY" 655.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[0].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].positionY" 464.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[1].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].positionY" 222.85714721679688;
-	setAttr ".tabGraphInfo[0].nodeInfo[2].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[3].positionX" 1601.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[3].positionY" 371.42855834960938;
-	setAttr ".tabGraphInfo[0].nodeInfo[3].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[4].positionX" 1601.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[4].positionY" 612.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[4].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[5].positionX" 1601.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[5].positionY" 187.14285278320312;
-	setAttr ".tabGraphInfo[0].nodeInfo[5].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[6].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[6].positionY" 705.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[6].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[7].positionX" 1601.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[7].positionY" 774.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[7].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[8].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[8].positionY" 70;
-	setAttr ".tabGraphInfo[0].nodeInfo[8].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[9].positionX" -2128.571533203125;
-	setAttr ".tabGraphInfo[0].nodeInfo[9].positionY" 585.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[9].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[10].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[10].positionY" -258.57144165039062;
-	setAttr ".tabGraphInfo[0].nodeInfo[10].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[11].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[11].positionY" -442.85714721679688;
-	setAttr ".tabGraphInfo[0].nodeInfo[11].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[12].positionX" 1250;
-	setAttr ".tabGraphInfo[0].nodeInfo[12].positionY" 170;
-	setAttr ".tabGraphInfo[0].nodeInfo[12].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[13].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[13].positionY" -82.857139587402344;
-	setAttr ".tabGraphInfo[0].nodeInfo[13].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[14].positionX" 2238.571533203125;
-	setAttr ".tabGraphInfo[0].nodeInfo[14].positionY" 762.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[14].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[15].positionX" 2238.571533203125;
-	setAttr ".tabGraphInfo[0].nodeInfo[15].positionY" 521.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[15].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[16].positionX" 942.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[16].positionY" 74.285713195800781;
-	setAttr ".tabGraphInfo[0].nodeInfo[16].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[17].positionX" 2238.571533203125;
-	setAttr ".tabGraphInfo[0].nodeInfo[17].positionY" 280;
-	setAttr ".tabGraphInfo[0].nodeInfo[17].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[18].positionX" 21.428571701049805;
-	setAttr ".tabGraphInfo[0].nodeInfo[18].positionY" 764.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[18].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[19].positionX" 635.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[19].positionY" 774.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[19].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[20].positionX" 328.57144165039062;
-	setAttr ".tabGraphInfo[0].nodeInfo[20].positionY" 684.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[20].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[21].positionX" -285.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[21].positionY" 674.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[21].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[22].positionX" -900;
-	setAttr ".tabGraphInfo[0].nodeInfo[22].positionY" 774.28570556640625;
-	setAttr ".tabGraphInfo[0].nodeInfo[22].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[23].positionX" -1207.142822265625;
-	setAttr ".tabGraphInfo[0].nodeInfo[23].positionY" 717.14288330078125;
-	setAttr ".tabGraphInfo[0].nodeInfo[23].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[24].positionX" -1514.2857666015625;
-	setAttr ".tabGraphInfo[0].nodeInfo[24].positionY" 725.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[24].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[25].positionX" 942.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[25].positionY" 797.14288330078125;
-	setAttr ".tabGraphInfo[0].nodeInfo[25].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[26].positionX" -1821.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[26].positionY" 650;
-	setAttr ".tabGraphInfo[0].nodeInfo[26].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[27].positionX" 1601.4285888671875;
-	setAttr ".tabGraphInfo[0].nodeInfo[27].positionY" -445.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[27].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[28].positionX" -592.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[28].positionY" 688.5714111328125;
-	setAttr ".tabGraphInfo[0].nodeInfo[28].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[29].positionX" 1922.857177734375;
-	setAttr ".tabGraphInfo[0].nodeInfo[29].positionY" -655.71429443359375;
-	setAttr ".tabGraphInfo[0].nodeInfo[29].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[30].positionX" 2238.571533203125;
-	setAttr ".tabGraphInfo[0].nodeInfo[30].positionY" -82.857139587402344;
-	setAttr ".tabGraphInfo[0].nodeInfo[30].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[31].positionX" 1250;
-	setAttr ".tabGraphInfo[0].nodeInfo[31].positionY" 522.85711669921875;
-	setAttr ".tabGraphInfo[0].nodeInfo[31].nodeVisualState" 1922;
-	setAttr ".tabGraphInfo[0].nodeInfo[32].positionX" -98.571426391601562;
-	setAttr ".tabGraphInfo[0].nodeInfo[32].positionY" 81.428573608398438;
-	setAttr ".tabGraphInfo[0].nodeInfo[32].nodeVisualState" 1923;
+	setAttr -size 4 ".influenceColor";
+	setAttr -size 4 ".influenceColor";
+createNode displayLayer -name "L_SRC";
+	rename -uuid "3F52AC42-4F61-24C3-02D1-9A961D51DC59";
+	setAttr ".color" 13;
+	setAttr ".displayOrder" 1;
+createNode displayLayer -name "L_DST";
+	rename -uuid "8D7260B2-4ED7-CBF1-00F7-FD954C8350C9";
+	setAttr ".color" 14;
+	setAttr ".displayOrder" 2;
 select -noExpand :time1;
 	setAttr -alteredValue -keyable on ".caching";
 	setAttr -keyable on ".frozen";
@@ -1465,11 +1596,13 @@ select -noExpand :hardwareRenderGlobals;
 	setAttr -keyable on ".blendSpecularWithAlpha";
 	setAttr -keyable on ".shadingModel";
 	setAttr -keyable on ".hardwareEnvironmentLookup";
+connectAttr "L_SRC.drawInfo" "Cylinder_SRC.drawOverride";
 connectAttr "deltaMush1.outputGeometry[0]" "Cylinder_SRCShape.inMesh";
 connectAttr "polyCylinder1.output" "Cylinder_SRCShapeOrig.inMesh";
 connectAttr "joint1.scale" "joint2.inverseScale";
 connectAttr "joint2.scale" "joint3.inverseScale";
 connectAttr "joint3.scale" "joint4.inverseScale";
+connectAttr "L_DST.drawInfo" "Cylinder_DST.drawOverride";
 connectAttr "skinCluster2.outputGeometry[0]" "Cylinder_DSTShape.inMesh";
 relationship "link" ":lightLinker1" ":initialShadingGroup.message" ":defaultLightSet.message";
 relationship "link" ":lightLinker1" ":initialParticleSE.message" ":defaultLightSet.message";
@@ -1484,6 +1617,42 @@ connectAttr ":defaultArnoldDisplayDriver.message" ":defaultArnoldRenderOptions.d
 		 -nextAvailable;
 connectAttr ":defaultArnoldFilter.message" ":defaultArnoldRenderOptions.filter";
 connectAttr ":defaultArnoldDriver.message" ":defaultArnoldRenderOptions.driver";
+connectAttr "ROOT.message" "bindPose1.members[0]";
+connectAttr "JOINTS.message" "bindPose1.members[1]";
+connectAttr "joint1.message" "bindPose1.members[2]";
+connectAttr "joint2.message" "bindPose1.members[3]";
+connectAttr "joint3.message" "bindPose1.members[4]";
+connectAttr "joint4.message" "bindPose1.members[8]";
+connectAttr "bindPose1.world" "bindPose1.parents[0]";
+connectAttr "bindPose1.members[0]" "bindPose1.parents[1]";
+connectAttr "bindPose1.members[1]" "bindPose1.parents[2]";
+connectAttr "bindPose1.members[2]" "bindPose1.parents[3]";
+connectAttr "bindPose1.members[3]" "bindPose1.parents[4]";
+connectAttr "bindPose1.members[4]" "bindPose1.parents[6]";
+connectAttr "bindPose1.members[4]" "bindPose1.parents[7]";
+connectAttr "bindPose1.members[4]" "bindPose1.parents[8]";
+connectAttr "joint1.bindPose" "bindPose1.worldMatrix[2]";
+connectAttr "joint2.bindPose" "bindPose1.worldMatrix[3]";
+connectAttr "joint3.bindPose" "bindPose1.worldMatrix[4]";
+connectAttr "joint4.bindPose" "bindPose1.worldMatrix[8]";
+connectAttr ":initialShadingGroup.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[0].dependNode"
+		;
+connectAttr "Cylinder_DST.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[1].dependNode"
+		;
+connectAttr "Cylinder_DSTShape.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[2].dependNode"
+		;
+connectAttr ":lambert1.outColor" "lambert1SG.surfaceShader";
+connectAttr "Cylinder_DSTShape.instObjGroups" "lambert1SG.dagSetMembers" -nextAvailable
+		;
+connectAttr "Cylinder_SRCShape.instObjGroups" "lambert1SG.dagSetMembers" -nextAvailable
+		;
+connectAttr "lambert1SG.message" "materialInfo1.shadingGroup";
+connectAttr ":lambert1.message" "materialInfo1.material";
+connectAttr "lambert1SG.message" "hyperShadePrimaryNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[32].dependNode"
+		;
+connectAttr "skinCluster1.outputGeometry[0]" "deltaMush1.input[0].inputGeometry"
+		;
+connectAttr "Cylinder_SRCShapeOrig.outMesh" "deltaMush1.originalGeometry[0]";
 connectAttr "Cylinder_SRCShapeOrig.worldMesh" "skinCluster1.input[0].inputGeometry"
 		;
 connectAttr "Cylinder_SRCShapeOrig.outMesh" "skinCluster1.originalGeometry[0]";
@@ -1498,52 +1667,25 @@ connectAttr "joint1.objectColorRGB" "skinCluster1.influenceColor[0]";
 connectAttr "joint2.objectColorRGB" "skinCluster1.influenceColor[1]";
 connectAttr "joint3.objectColorRGB" "skinCluster1.influenceColor[2]";
 connectAttr "joint2.message" "skinCluster1.paintTrans";
-connectAttr "ROOT.message" "bindPose1.members[0]";
-connectAttr "JOINTS.message" "bindPose1.members[1]";
-connectAttr "joint1.message" "bindPose1.members[2]";
-connectAttr "joint2.message" "bindPose1.members[3]";
-connectAttr "joint3.message" "bindPose1.members[4]";
-connectAttr "bindPose1.world" "bindPose1.parents[0]";
-connectAttr "bindPose1.members[0]" "bindPose1.parents[1]";
-connectAttr "bindPose1.members[1]" "bindPose1.parents[2]";
-connectAttr "bindPose1.members[2]" "bindPose1.parents[3]";
-connectAttr "bindPose1.members[3]" "bindPose1.parents[4]";
-connectAttr "joint1.bindPose" "bindPose1.worldMatrix[2]";
-connectAttr "joint2.bindPose" "bindPose1.worldMatrix[3]";
-connectAttr "joint3.bindPose" "bindPose1.worldMatrix[4]";
-connectAttr "skinCluster1.outputGeometry[0]" "deltaMush1.input[0].inputGeometry"
-		;
-connectAttr "Cylinder_SRCShapeOrig.outMesh" "deltaMush1.originalGeometry[0]";
-connectAttr ":initialShadingGroup.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[0].dependNode"
-		;
-connectAttr "Cylinder_DST.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[1].dependNode"
-		;
-connectAttr "Cylinder_DSTShape.message" "MayaNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[2].dependNode"
-		;
 connectAttr "Cylinder_DSTShapeOrig.worldMesh" "skinCluster2.input[0].inputGeometry"
 		;
 connectAttr "Cylinder_DSTShapeOrig.outMesh" "skinCluster2.originalGeometry[0]";
 connectAttr "joint1.worldMatrix" "skinCluster2.matrix[0]";
 connectAttr "joint2.worldMatrix" "skinCluster2.matrix[1]";
 connectAttr "joint3.worldMatrix" "skinCluster2.matrix[2]";
+connectAttr "joint4.worldMatrix" "skinCluster2.matrix[3]";
 connectAttr "joint1.lockInfluenceWeights" "skinCluster2.lockWeights[0]";
 connectAttr "joint2.lockInfluenceWeights" "skinCluster2.lockWeights[1]";
 connectAttr "joint3.lockInfluenceWeights" "skinCluster2.lockWeights[2]";
+connectAttr "joint4.lockInfluenceWeights" "skinCluster2.lockWeights[3]";
 connectAttr "joint1.objectColorRGB" "skinCluster2.influenceColor[0]";
 connectAttr "joint2.objectColorRGB" "skinCluster2.influenceColor[1]";
 connectAttr "joint3.objectColorRGB" "skinCluster2.influenceColor[2]";
+connectAttr "joint4.objectColorRGB" "skinCluster2.influenceColor[3]";
 connectAttr "bindPose1.message" "skinCluster2.bindPose";
-connectAttr "joint2.message" "skinCluster2.paintTrans";
-connectAttr ":lambert1.outColor" "lambert1SG.surfaceShader";
-connectAttr "Cylinder_DSTShape.instObjGroups" "lambert1SG.dagSetMembers" -nextAvailable
-		;
-connectAttr "Cylinder_SRCShape.instObjGroups" "lambert1SG.dagSetMembers" -nextAvailable
-		;
-connectAttr "lambert1SG.message" "materialInfo1.shadingGroup";
-connectAttr ":lambert1.message" "materialInfo1.material";
-connectAttr "lambert1SG.message" "hyperShadePrimaryNodeEditorSavedTabsInfo.tabGraphInfo[0].nodeInfo[32].dependNode"
-		;
+connectAttr "layerManager.displayLayerId[1]" "L_SRC.identification";
+connectAttr "layerManager.displayLayerId[2]" "L_DST.identification";
 connectAttr "lambert1SG.partition" ":renderPartition.sets" -nextAvailable;
 connectAttr "defaultRenderLayer.message" ":defaultRenderingList1.rendering" -nextAvailable
 		;
-// End of CylinderTest.ma
+// End of CylinderTest_bis.ma

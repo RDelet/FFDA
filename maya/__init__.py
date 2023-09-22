@@ -2,83 +2,88 @@
 # -----------------------
 # Script pour Maya:
 # -----------------------
-
-import imp
-import os
 import sys
 
 sys.path.insert(0, r"D:\RDE_DATA\Work")
 
-from fdda import maya
-from fdda.core.logger import log
-from fdda.maya import bind
-from fdda.maya.builder import Builder
-from fdda.maya.poseGenerator import PoseGenerator
-from fdda.training.PyTorch.training import build_models
-from fdda.training.PyTorch.architecture import Activation
+from maya import cmds, OpenMaya
+
+from fdda.maya import bind, train, generate_pose
 from fdda.training.PyTorch.settings import Settings
 
 
-generatePose = False
-
-
-# Get output directory
-scene_name = cmds.file(query=True, sceneName=True)
-if not scene_name:
-    raise RuntimeError("Scene must be save before train !")
-
-directory_path, file_name = os.path.split(scene_name)
-output_path = os.path.normpath(os.path.join(directory_path, file_name.split(".")[0]))
-if not os.path.exists(output_path):
-    os.mkdir(output_path)
-    log.info(f"Create directory: {output_path}")
-
-# Train
 selected = cmds.ls(selection=True, long=True)
 if len(selected) != 2:
     raise RuntimeError("Selected Source and Destination !")
-
-if generatePose:
-    pose_generator = PoseGenerator(selected[0])
-    pose_generator.generate(40)
-
-# Build data from source and destination meshes.
-data_builder = Builder(*selected)
-data_builder.do(output_path)
+source, destination = selected
 
 settings = Settings.default()
-settings.rate = 1e-3
-settings.layers = 4
-settings.epochs = 800
-settings.activation = Activation.kElu
 settings.split = 0.1
 settings.units = 256
-settings.batch_size = 128
-settings.device = Settings.kCpu
+settings.device = Settings.kGpu
 
-build_models(input_directory=output_path, settings=settings, mode=True, normalized=True, debug=True)
-
-bind(selected[1], output_path)
+output_path = train(source, destination, settings, build_pose=True, num_pose=40)
+bind(destination, output_path)
 """
 
 import os
 
 from maya import cmds
 
-from fdda.core import constant as cst
+from fdda import kBipedLimitsPath
 from fdda.core.logger import log
-from fdda.core import api_utils
+from fdda.maya.core import api_utils
+from fdda.maya.core import constant as cst
+from fdda.maya.poseGenerator import PoseGenerator
+from fdda.maya.builder import Builder
 from fdda.maya.binder import Binder
+from fdda.training.PyTorch.training import build_models
+from fdda.training.PyTorch.settings import Settings
+
 
 
 _directory = os.path.split(__file__)[0]
 
+
+def get_path_from_scene() -> str:
+    scene_name = cmds.file(query=True, sceneName=True)
+    if not scene_name:
+        raise RuntimeError("Scene must be save before train !")
+
+    directory_path, file_name = os.path.split(scene_name)
+    output_path = os.path.normpath(os.path.join(directory_path, file_name.split(".")[0]))
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+        log.info(f"Create directory: {output_path}")
+    
+    return output_path
 
 def bind(node: cst.kdagType, input_directory: str):
     """ @!Brief Bind FDDA deformer."""
     api_utils.go_to_start_frame()
     binder = Binder(destination=node, input_directory=input_directory)
     binder.bind()
+
+
+def generate_pose(node: str, num_pose: int = 40, data_path: str = kBipedLimitsPath):
+    pose_generator = PoseGenerator(node)
+    pose_generator.generate(num_pose)
+
+
+def train(source: str, destination: str,
+          settings: Settings = Settings.default(),
+          build_pose: bool = True, num_pose: int = 40) -> str:
+    output_path = get_path_from_scene()
+
+    if build_pose:
+        generate_pose(source, num_pose=num_pose)
+
+    data_builder = Builder(source, destination)
+    data_builder.do(output_path)
+
+    build_models(input_directory=output_path, settings=settings, mode=True, normalized=True, debug=True)
+
+    return output_path
 
 
 def load_node():

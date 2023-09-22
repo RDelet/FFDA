@@ -4,9 +4,9 @@ from typing import Union
 from maya import cmds, OpenMaya, OpenMayaAnim
 
 from fdda.core.logger import log
-from fdda.core import api_utils
-from fdda.core.deformer import Deformer
-from fdda.core import constant as cst
+from fdda.maya.core import api_utils
+from fdda.maya.core.deformer import Deformer
+from fdda.maya.core import constant as cst
 
 
 class Skin(Deformer):
@@ -45,13 +45,13 @@ class Skin(Deformer):
         self.max_influences = 8
         self.maintain_max_influences = True
     
-        self.influences_ids = list()
-        self.influences_names = list()
-        self.weights = list()
+        self.influences_ids = []
+        self.influences_names = []
+        self.weights = []
 
         if node:
             self.__get(weights=weights)
-    
+
     def influences_count(self) -> int:
         return len(self.influences_ids)
 
@@ -76,9 +76,8 @@ class Skin(Deformer):
         self.maintain_max_influences = cmds.getAttr(f"{name}.{self.kMaintainMaxInfluences}")
     
     def __get_influences(self):
-        self.influences_ids = list()
-        self.influences_names = list()
-        self.influences_ranges = list()
+        self.influences_ids = []
+        self.influences_names = []
         self.influences_len = None
 
         try:
@@ -92,16 +91,8 @@ class Skin(Deformer):
                     continue
                 self.influences_ids.append(self.mfn.indexForInfluenceObject(dp_node))
                 self.influences_names.append(dp_node.fullPathName())
-                self.influences_ranges.append(self.__get_rotation_limits(dp_node))
         except Exception as e:
             log.debug(e)
-    
-    @classmethod
-    def __get_rotation_limits(cls, node):
-        mfn = OpenMaya.MFnTransform(node)
-        return [[mfn.limitValue(cls.kRotateMinX), mfn.limitValue(cls.kRotateMaxX)],
-                [mfn.limitValue(cls.kRotateMinY), mfn.limitValue(cls.kRotateMaxY)],
-                [mfn.limitValue(cls.kRotateMinZ), mfn.limitValue(cls.kRotateMaxZ)]]
 
     def __get_weights(self):
         component = self.__get_shape_component()

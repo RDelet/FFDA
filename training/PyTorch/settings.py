@@ -41,17 +41,17 @@ class Settings:
     kCpu = "cpu"
     kGpu = "gpu"
 
-    __kRateDefault = 0.001
-    __kEpochsDefault = 200
+    __kRateDefault = 1e-3
+    __kEpochsDefault = 800
     __kSplitDefault = 0.3
     __kBatchSizeDefault = 32
     __kShuffle = True
     __kUnitsDefault = 512
     __kInputDimDefault = 100
-    __kLayersDefault = 3
+    __kLayersDefault = 4
     __kEarlyStop = 20
     __kArchitectureDefault = Architecture.kDense
-    __kActivationDefault = Activation.kDefault
+    __kActivationDefault = Activation.kElu
     __kDevice = kCpu
 
     def __init__(self, **kwargs):

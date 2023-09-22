@@ -52,7 +52,7 @@ class FDDADeformerNode(OpenMayaMPx.MPxDeformerNode):
         self.device = 'cpu'
 
     def __str__(self) -> str:
-        return self.__repr__
+        return self.__repr__()
     
     def __repr__(self) -> str:
         return f"FDDA(class: {self.__class__.__name__}, DataLocation: {self.data_location})"

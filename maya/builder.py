@@ -8,15 +8,16 @@ import traceback
 
 from maya import OpenMaya
 
-from fdda.core.logger import log
-from fdda.core import api_utils
-from fdda.core.data import SkinData, MeshData
 from fdda.core import constant as cst
+from fdda.core.logger import log
+from fdda.maya.core import api_utils
+from fdda.maya.core.data import SkinData, MeshData
+from fdda.maya.core import constant as maya_cst
 
 
 class Builder(object):
 
-    def __init__(self, source: cst.kdagType = None, destination: cst.kdagType = None):
+    def __init__(self, source: maya_cst.kdagType = None, destination: maya_cst.kdagType = None):
         self._source = api_utils.get_node(source)
         self._destination = api_utils.get_node(destination)
         self._data = None
@@ -39,7 +40,7 @@ class Builder(object):
         return self._source
 
     @source.setter
-    def source(self, value: cst.kdagType):
+    def source(self, value: maya_cst.kdagType):
         self._source = api_utils.get_node(value)
 
     @property
@@ -47,7 +48,7 @@ class Builder(object):
         return self._destination
 
     @destination.setter
-    def destination(self, value: cst.kdagType):
+    def destination(self, value: maya_cst.kdagType):
         self._destination = api_utils.get_node(value)
 
     def do(self, output_dir: str,

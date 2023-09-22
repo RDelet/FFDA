@@ -3,7 +3,7 @@ from typing import Union
 
 from maya import cmds, OpenMaya, OpenMayaAnim
 
-from fdda.core import api_utils
+from fdda.maya.core import api_utils
 
 
 class Deformer(object):
@@ -17,7 +17,7 @@ class Deformer(object):
             self.__get(node)
 
     def __str__(self) -> str:
-        return self.__repr__
+        return self.__repr__()
     
     def __repr__(self) -> str:
         return f"FDDA(class: {self.__class__.__name__})"

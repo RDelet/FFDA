@@ -4,15 +4,15 @@ import json
 
 from maya import cmds, OpenMaya
 
+from fdda.core import constant as cst
 from fdda.core.logger import log
-from fdda.core import api_utils, constant as cst
 from fdda.maya.nodes.fddaDeformerNode import FDDADeformerNode
-from fdda.core import api_utils
+from fdda.maya.core import api_utils, constant as maya_cst
 
 
 class Binder(object):
 
-    def __init__(self, destination: cst.kdagType, input_directory: str):
+    def __init__(self, destination: maya_cst.kdagType, input_directory: str):
         self._destination = api_utils.get_node(destination)
         self._file = os.path.normpath(os.path.join(input_directory, f"{cst.kOutputName}.{cst.kExtension}"))
         self._data = None
@@ -35,7 +35,7 @@ class Binder(object):
         return self._destination
 
     @destination.setter
-    def destination(self, value: cst.kdagType):
+    def destination(self, value: maya_cst.kdagType):
         self._destination = api_utils.get_node(value)
 
     @property
@@ -61,7 +61,7 @@ class Binder(object):
         return self._deformer
 
     @deformer.setter
-    def deformer(self, value: cst.kdepType):
+    def deformer(self, value: maya_cst.kdepType):
         self._deformer = api_utils.get_node(value)
 
     @property
