@@ -7,7 +7,7 @@ import numpy as np
 from fdda.core.logger import log
 from fdda.maya.core import api_utils
 from fdda.maya.core.skin import Skin
-from fdda.maya.core.context import KeepCurrentFrame
+from fdda.maya.core.context import KeepCurrentFrame, DisableRefresh
 
 
 class BaseData:
@@ -67,6 +67,7 @@ class MeshData(BaseData):
         self.skin_data.clear()
 
     @KeepCurrentFrame()
+    @DisableRefresh()
     def get(self, source: OpenMaya.MDagPath, destination: OpenMaya.MDagPath, start: float = None, end: float = None):
         """!@Brief: Build data from a maya scene. Input: Joint quaternion and translation vector and delta between
         source and destination object."""

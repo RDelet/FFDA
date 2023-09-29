@@ -6,7 +6,6 @@ from maya import cmds, OpenMaya
 
 from fdda.core import constant as cst
 from fdda.core.logger import log
-from fdda.maya.nodes.fddaDeformerNode import FDDADeformerNode
 from fdda.maya.core import api_utils, constant as maya_cst
 
 
@@ -53,7 +52,7 @@ class Binder(object):
 
         if self._deformer is not None:
             deformer_name = api_utils.name(self._deformer)
-            cmds.setAttr(f"{deformer_name}.{FDDADeformerNode.kTrainingDataLong}",
+            cmds.setAttr(f"{deformer_name}.{cst.kTrainingDataLong}",
                          self._file, type='string')
 
     @property
@@ -74,7 +73,7 @@ class Binder(object):
     def bind(self):
         dst_name = api_utils.name(self.destination)
         try:
-            self.deformer = cmds.deformer(dst_name, type=FDDADeformerNode.kNodeName)[0]
+            self.deformer = cmds.deformer(dst_name, type=maya_cst.kNodeName)[0]
         except Exception as e:
             log.debug(e)
             raise RuntimeError(f"Error on bind deformer on {dst_name}!")

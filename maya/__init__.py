@@ -87,7 +87,7 @@ def train(source: str, destination: str,
 
 
 def load_node():
-    node_path = os.path.normpath(os.path.join(_directory, "nodes", "fddaDeformerNode.py"))
+    node_path = os.path.normpath(os.path.join(_directory, "nodes/Proto", "fddaDeformerNode.py"))
     if not cmds.pluginInfo(node_path, query=True, loaded=True):
         cmds.loadPlugin(node_path)
 

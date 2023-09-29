@@ -1,14 +1,19 @@
 import os
+from collections import namedtuple
 from time import time
 from tqdm import tqdm
 
 import numpy as np
-from torch import inf, no_grad, save
+from torch import inf as torchInf, no_grad, save as torchSave, from_numpy
 from torch.nn import Module, Linear, Sequential
 
 from fdda.core.logger import log
 from fdda.training.PyTorch.callbacks import EarlyStop
+from fdda.training.PyTorch.math import feature_standardization
 from fdda.training.PyTorch.settings import Settings, Activation
+
+
+TorchModel = namedtuple("TorchModel", ["model", "vertices"])
 
 
 class MultiLayerPerceptron(Module):
@@ -161,13 +166,13 @@ def fit(model, train_loader, validation_loader, loss_func, optimizer, writer, sa
         history['loss'].append((epoch_loss / n_samples))
 
         # Save the best learned model.
-        is_best = (v_loss / val_samples) < inf
+        is_best = (v_loss / val_samples) < torchInf
 
         if is_best:
-            save({'model_state_dict': model.state_dict(),
-                  'input_shape': input_shape,
-                  'output_shape': output_shape,
-                  'settings': settings}, model_state_file)
+            torchSave({'model_state_dict': model.state_dict(),
+                       'input_shape': input_shape,
+                       'output_shape': output_shape,
+                       'settings': settings}, model_state_file)
 
         if callback.early_stop((epoch_loss / n_samples)):
             log.info('=> '.format(save_dir))
@@ -180,3 +185,21 @@ def fit(model, train_loader, validation_loader, loss_func, optimizer, writer, sa
 # Evaluation function
 def evaluation(model, inputs, loss_func, batch_size=32, device='cpu'):
     pass
+
+
+def get_prediction(model: TorchModel, inputs: np.array,
+                   mean: list, std: list,
+                   normalized: bool = True, device: str = "cpu") -> np.array:
+        # Apply normalization
+        if normalized:
+            mean = np.array(mean, dtype=np.float32)
+            std = np.array(std, dtype=np.float32)
+            inputs = feature_standardization(inputs, mean, std)
+        # Convert Numpy -> torch.Tensor
+        inputs = from_numpy(inputs).to(device)
+        # Prediction
+        prediction = model.model(inputs)
+        # Convert torch.Tensor -> Numpy
+        prediction = prediction.detach().cpu().numpy()
+
+        return prediction
