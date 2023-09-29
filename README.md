@@ -6,6 +6,12 @@
 - [Thomas Léglantier](https://www.linkedin.com/in/thomas-l%C3%A9glantier-ab318b157)
 - [Tristan Cordeboeuf](https://www.artstation.com/tcordeboeuf)
 
+# Dependencies
+- [Pytorch 1.13.1](https://pytorch.org/)
+- [Pandas](https://pandas.pydata.org/)
+- [tqdm](https://tqdm.github.io/)
+- [numpy](https://numpy.org/)
+
 # Launch
 ```python
 import sys
